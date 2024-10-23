@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "User" ALTER COLUMN "nohp" SET DATA TYPE VARCHAR(12);
