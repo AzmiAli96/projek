@@ -1,20 +1,19 @@
 @startuml
 
-Actor Admin
+actor Admin
 participant "System" as System
 participant "Database" as DB
 
-alt Jika Valid
-    Admin -> System: Memasukkan Data Barang
-    System -> DB: akan menginput data
-    System -> System: memastikan barang masih ada stock yang tersisa
-    DB -> Admin: Melihat barang yang sudah hampir habis
+Admin -> System: Memasukkan Data Barang
+System -> DB: Menginput data barang
 
-else Jika TIdak Valid
+alt Jika valid
+    System -> System: Memastikan stok barang masih ada
+    DB -> Admin: Menampilkan barang yang hampir habis
+
+else Jika tidak valid
     DB -> System: Kode barang sudah terpakai
-    System -> Admin: Kode barang sudah terpakai
-
-
-
+    System -> Admin: Notifikasi kode barang sudah terpakai
 end
+
 @enduml

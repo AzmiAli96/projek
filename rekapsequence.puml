@@ -1,18 +1,25 @@
 @startuml
 
-Actor Admin
+actor Admin
 participant Rekap
 participant "Database" as DB
 participant Penghasilan
 participant Pengeluaran
 
+Penghasilan -> DB: Memasukkan data penghasilan
+Pengeluaran -> DB: Memasukkan data pengeluaran
 
 alt Jika valid
-Penghasilan -> DB: pemasukkan data penghasilan
-Pengeluaran -> DB: pemasukkan data pengeluaran
-Admin -> Rekap: Merekap data penghasilan
-Rekap -> DB : mensimpulkan data bulanan 
+    Admin -> Rekap: Merekap data penghasilan dan pengeluaran
+    Rekap -> DB: Mengambil data penghasilan dan pengeluaran
+    Rekap -> Rekap: Menghitung penghasilan kotor
+    Rekap -> Rekap: Menghitung penghasilan bersih (penghasilan kotor - pengeluaran)
+    Rekap -> Admin: Menampilkan penghasilan kotor dan bersih
 
-
+else Jika tidak valid
+    Rekap -> DB: Gagal mengambil data penghasilan/pengeluaran
+    DB -> Rekap: Data penghasilan atau pengeluaran tidak valid
+    Rekap -> Admin: Error, data penghasilan/pengeluaran tidak valid
 end
+
 @enduml

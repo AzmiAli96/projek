@@ -1,16 +1,20 @@
 @startuml
 
-Actor Sales
+actor Sales
 participant "Pengeluaran" as pengeluaran
 participant "Database" as DB
 
-alt jika valid
-    Sales -> pengeluaran: pengeluaran bulanan
-    pengeluaran -> pengeluaran: pengeluaran dadakan 
-    pengeluaran-> DB: menginput data pengeluaran
+Sales -> pengeluaran: Input pengeluaran bulanan
+pengeluaran -> pengeluaran: Memproses pengeluaran dadakan
 
-else jika tidak valid
-    DB -> pengeluaran: Terjadinya Kesalahan data
-    pengeluaran -> Sales: Terjadinya Kesalahan data
+alt Data valid
+    pengeluaran -> DB: Menginput data pengeluaran
+    DB -> pengeluaran: Data berhasil disimpan
+    pengeluaran -> Sales: Pengeluaran berhasil dicatat
+
+else Data tidak valid
+    DB -> pengeluaran: Terjadi kesalahan data
+    pengeluaran -> Sales: Terjadi kesalahan data
 end
+
 @enduml
