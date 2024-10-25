@@ -1,0 +1,18 @@
+@startuml
+
+Actor Admin
+participant Rekap
+participant "Database" as DB
+participant Penghasilan
+participant Pengeluaran
+
+
+alt Jika valid
+Penghasilan -> DB: pemasukkan data penghasilan
+Pengeluaran -> DB: pemasukkan data pengeluaran
+Admin -> Rekap: Merekap data penghasilan
+Rekap -> DB : mensimpulkan data bulanan 
+
+
+end
+@enduml

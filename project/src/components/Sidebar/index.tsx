@@ -68,7 +68,7 @@ const menuGroups = [
             />
           </svg>
         ),
-        label: "Calendar",
+        label: "Pembayaran",
         route: "/calendar",
       },
       {
@@ -91,7 +91,7 @@ const menuGroups = [
             />
           </svg>
         ),
-        label: "Profile",
+        label: "Pengeluaran",
         route: "/profile",
       },
       {
@@ -161,7 +161,7 @@ const menuGroups = [
             </defs>
           </svg>
         ),
-        label: "Tables",
+        label: "Rekap Pengahasilan",
         route: "/tables",
       },
       {

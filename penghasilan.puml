@@ -1,0 +1,19 @@
+@startuml
+actor Sales
+participant "Penghasilan" as hasil 
+participant "Database" as DB
+participant "Customer" as pembeli
+pembeli -> DB: customer membeli barang
+DB -> Sales: Customer membeli barang
+
+alt Jika valid
+    Sales -> hasil: penjual menerima pesanan 
+    hasil -> hasil: menyiapkan pesanan dan memastikan pesanan sudah dibayar
+    hasil -> DB: menginput data penghasilan
+else Jika Tidak valid
+    DB -> hasil: Pembayaran belum dilakukan 
+    hasil -> Sales: Barang masih ditahan / Menghubungi pembeli
+    Sales -> DB: pembeli membayar utang 
+    DB -> pembeli: memastikan membayar
+end
+@enduml

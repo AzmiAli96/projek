@@ -1,0 +1,20 @@
+@startuml
+
+Actor Customers
+participant "Pembelian" as Pembelian
+participant "Database" as DB
+
+alt Jika valid 
+    Customers -> Pembelian: Membeli barang yang diinginkan
+    Pembelian -> DB: Mengirim data ke Pembelian
+    Pembelian -> Pembelian: barang tidak jadi dibeli
+    DB -> Pembelian: Permberitahuan akan Disiapkan
+    Pembelian -> DB: Membayar barang yang dibeli
+
+else Jiak Tidak valid
+    DB -> Pembelian: Barang Tidak Tersedia
+    DB -> Customers: Pembayaran belum di selesaikan
+end
+
+
+@enduml

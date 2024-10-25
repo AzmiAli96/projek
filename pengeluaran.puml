@@ -1,0 +1,16 @@
+@startuml
+
+Actor Sales
+participant "Pengeluaran" as pengeluaran
+participant "Database" as DB
+
+alt jika valid
+    Sales -> pengeluaran: pengeluaran bulanan
+    pengeluaran -> pengeluaran: pengeluaran dadakan 
+    pengeluaran-> DB: menginput data pengeluaran
+
+else jika tidak valid
+    DB -> pengeluaran: Terjadinya Kesalahan data
+    pengeluaran -> Sales: Terjadinya Kesalahan data
+end
+@enduml

@@ -27,8 +27,8 @@ model Barang{
   kode_barang String @unique
   nama_barang String
   ket String
-  harga String
-  jumlah String
+  harga Decimal
+  jumlah Int
   image String
   pembelian Pembelian[]
 }
@@ -40,6 +40,36 @@ model Pembelian{
   id_barang Int 
   barang Barang @relation(fields: [id_barang], references: [id])
   tanggal DateTime
-  jumlah_beli String
-  total String
+  jumlah_beli Int
+  total Decimal
+  pembayaran Pembayaran[]
+}
+
+model Pembayaran{
+  id Int @id @default(autoincrement())
+  id_pembelian Int
+  pembelian Pembelian @relation(fields: [id_pembelian], references: [id])
+  harga_bayar Decimal
+  status String
+  rekap Rekap[]
+}
+
+model Pengeluaran{
+  id Int @id @default(autoincrement())
+  jenis_pengeluaran String
+  Ket String
+  biaya Decimal
+  tanggal DateTime
+  rekap Rekap[]
+}
+
+model Rekap{
+    id Int @id @default(autoincrement())
+    id_pembayaran Int
+    pembayaran Pembayaran @relation(fields: [id_pembayaran], references: [id])
+    id_pengeluaran Int
+    pengeluaran Pengeluaran @relation(fields: [id_pengeluaran], references: [id])
+    bulan DateTime
+    penghasilan_bersih Decimal
+    penghasilan_kotor Decimal
 }

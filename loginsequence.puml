@@ -1,0 +1,25 @@
+@startuml
+actor User
+participant "Halaman Login" as LoginPage
+participant "sistem" as System 
+participant "Database" as DB
+participant "Dashboard" as Dash
+
+alt Jika valid
+    User-> LoginPage: Masukkan email dan password
+    LoginPage -> System: Kirim data login
+    System -> DB: Cek email dan password
+    DB ->  Dash: Masuk ke dashboard
+    DB -> DB: Validasi Data
+    Dash -> User: Masuk ke dashboard
+
+else Jika Tidak valid
+    DB -> User: Email atau password Salah
+end
+
+User -> System: Klik Logout
+System -> System: menghapus session
+System -> User: Logout Berhasil
+
+
+@enduml
