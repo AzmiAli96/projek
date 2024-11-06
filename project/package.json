@@ -13,7 +13,9 @@
     "apexcharts": "^3.45.2",
     "axios": "^1.7.7",
     "flatpickr": "^4.6.13",
+    "formidable": "^3.5.2",
     "jsvectormap": "^1.6.0",
+    "multer": "^1.4.5-lts.1",
     "next": "^14.2.4",
     "prisma": "^5.21.1",
     "react": "^18",
@@ -21,6 +23,8 @@
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@types/formidable": "^3.4.5",
+    "@types/multer": "^1.4.12",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

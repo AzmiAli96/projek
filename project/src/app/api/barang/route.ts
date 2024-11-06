@@ -27,7 +27,6 @@ type barang ={
 export async function POST(req: Request) {
     try {
         const body: barang = await req.json();
-        console.log(body);
         
         const newItem =await prisma.barang.create({
             data: {

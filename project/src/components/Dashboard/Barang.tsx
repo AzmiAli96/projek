@@ -4,6 +4,7 @@ import Link from "next/link";
 import React, { FormEvent, useEffect, useState } from "react";
 
 type barang = {
+  id: number
   kode_barang: string
   nama_barang: string
   ket: string
@@ -20,6 +21,7 @@ const Barang: React.FC = () => {
   const [harga, setHarga] = useState("");
   const [image, setImage] = useState("");
   const [items, setItems] = useState([]);
+  const [editId, setEditId] = useState<number | null>(null); //
 
   useEffect(() => {
     const itemData = async () => {
@@ -29,6 +31,9 @@ const Barang: React.FC = () => {
 
     itemData();
   }, []);
+
+  // ---------------UPDATE ATAU EDIT----------------------------
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
@@ -51,10 +56,99 @@ const Barang: React.FC = () => {
       setHarga('')
       setJumlah('')
       setImage('')
+      resetForm(); // Mengatur ulang form (EDITED)
+      fetchData(); // Ambil data baru setelah insert (EDITED)
     } catch (error) {
       console.log("gagal simpan data barang");
     }
-  }
+  };
+
+  // Fungsi untuk mengatur ulang form (DITAMBAHKAN)
+  const resetForm = () => {
+    setKode_Barang("");
+    setNama_Barang("");
+    setKet("");
+    setHarga("");
+    setJumlah("");
+    setImage("");
+    setEditId(null); // Reset edit ID setelah form di-reset
+  };
+
+  // Fungsi untuk mengedit barang (DITAMBAHKAN)
+  const handleEdit = (item: barang, id: number) => {
+    setKode_Barang(item.kode_barang);
+    setNama_Barang(item.nama_barang);
+    setKet(item.ket);
+    setJumlah(String(item.jumlah));
+    setHarga(String(item.harga));
+    setImage(item.image);
+    setEditId(id); // Simpan ID barang yang sedang diedit
+  };
+
+  // Fungsi untuk mengirim update data (DITAMBAHKAN)
+  const handleUpdate = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (editId === null) {
+      console.log("No edit ID found");
+      return; // Jika tidak ada edit ID, hentikan fungsi
+    }
+
+    console.log("Updating item with ID:", editId);
+    console.log("Data to update:", {
+      kode_barang: kode_barang,
+      nama_barang: nama_barang,
+      ket: ket,
+      jumlah: jumlah,
+      harga: harga,
+      image: image
+    });
+
+    try {
+      const item = await axios.put(
+        `/api/barang/${editId}`, // Endpoint untuk update data berdasarkan ID (EDITED)
+        {
+          kode_barang,
+          nama_barang,
+          ket,
+          jumlah: parseInt(jumlah),
+          harga: parseFloat(harga),
+          image,
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      console.log(item);
+      resetForm(); // Mengatur ulang form setelah update (EDITED)
+      fetchData(); // Ambil data baru setelah update (EDITED)
+    } catch (error) {
+      console.log("Gagal update data barang", error);
+    }
+  };
+
+  // Fungsi untuk mengambil data terbaru setelah operasi insert/update (DITAMBAHKAN)
+  const fetchData = async () => {
+    const response = await axios.get("/api/barang");
+    setItems(response.data.data);
+  };
+
+  // ---------------END UPDATE ATAU EDIT---------------
+
+  // ----------------DELETE DATA--------------------------
+  // Fungsi untuk menghapus barang berdasarkan ID
+  const handleDelete = async (id: number) => {
+    try {
+      await axios.delete(`/api/barang/${id}`);
+      console.log("Barang berhasil dihapus");
+      fetchData(); // Refresh data setelah delete
+    } catch (error) {
+      console.log("Gagal menghapus barang");
+    }
+  };
+  // -----------------------END DELETE--------------------------
+
   return (
     <>
       <div className="flex flex-row gap-9">
@@ -67,7 +161,7 @@ const Barang: React.FC = () => {
               </h3>
             </div>
             <div className="flex flex-col gap-5.5 p-6.5">
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={editId ? handleUpdate : handleSubmit}>
                 <div>
                   <label className="mb-2 block text-sm font-medium text-black dark:text-white">
                     Kode Barang
@@ -135,7 +229,7 @@ const Barang: React.FC = () => {
                   <input
                     value={image}
                     onChange={(e) => { setImage(e.target.value) }}
-                    type="text"
+                    type="file"
                     placeholder="Default Input"
                     className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   />
@@ -143,10 +237,20 @@ const Barang: React.FC = () => {
                 <div className="flex justify-end mt-5">
                   <button
                     type="submit"
-                    className="inline-flex items-center justify-center rounded-md bg-meta-3 px-10 py-4 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+                    className="inline-flex items-center justify-center rounded-md bg-meta-3 px-8 py-4 font-medium text-white hover:bg-opacity-90 mr-3"
                   >
+                    {editId ? "Update" : "Tambah"} {/* Kondisi label tombol */}
                     Button
                   </button>
+                  {editId && (
+                    <button
+                      type="button"
+                      onClick={resetForm} /* Tombol batal untuk reset form */
+                      className="inline-flex items-center justify-center rounded-md bg-gray-400 px-8 py-4 font-medium text-white hover:bg-opacity-90"
+                    >
+                      Batal
+                    </button>
+                  )}
                 </div>
               </form>
             </div>
@@ -181,7 +285,9 @@ const Barang: React.FC = () => {
                     <td className="p-4 text-center border-b border-stroke">{item.harga}</td>
                     <td className="p-4 text-center border-b border-stroke">{item.jumlah}</td>
                     <td className="p-4 text-center border-b border-stroke">
-                      <button className="text-red-600 hover:text-red-800 transition duration-150">
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        className="text-red-600 hover:text-red-800 transition duration-150">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
@@ -197,13 +303,30 @@ const Barang: React.FC = () => {
                           />
                         </svg>
                       </button>
+                      <button onClick={() => handleEdit(item, item.id)}
+                        className="ml-3">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke-width="1.5"
+                          stroke="currentColor"
+                          className="size-6 text-blue-600 hover:text-blue-800 transition duration-150">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                        </svg>
+
+                      </button>
+                      {/* <button
+                        onClick={() => handleEdit(item, item.id)}
+                        className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
+                      >
+                        Edit
+                      </button> */}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-
-
           </div>
         </div>
       </div>
