@@ -44,7 +44,6 @@ const ViewBarang: React.FC = () => {
               <img src={item.image} alt={item.nama_barang} className="w-full h-48 object-cover" />
               <div className="p-4">
                 <h5 className="text-xl font-semibold text-gray-800">{item.nama_barang}</h5>
-                <p className="text-gray-500 mt-2">{item.ket}</p>
                 <div className="flex justify-between items-center mt-4">
                   <span className="text-gray-900 font-bold">Rp{item.harga}</span>
                   <span className="text-gray-700">{item.jumlah} pcs</span>

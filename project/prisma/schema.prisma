@@ -16,6 +16,7 @@ datasource db {
 model User{
   id Int @id @default(autoincrement())
   email String @unique
+  password String?
   name String
   level String
   nohp String @db.VarChar(12)
@@ -41,7 +42,7 @@ model Pembelian{
   barang Barang @relation(fields: [id_barang], references: [id])
   tanggal DateTime
   jumlah_beli Int
-  total Decimal
+  status String
   pembayaran Pembayaran[]
 }
 
