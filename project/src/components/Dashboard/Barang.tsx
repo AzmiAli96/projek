@@ -32,7 +32,6 @@ const Barang: React.FC = () => {
     itemData();
   }, []);
 
-  // ---------------UPDATE ATAU EDIT----------------------------
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -48,7 +47,7 @@ const Barang: React.FC = () => {
       }, {
         headers: { "Content-Type": "application/json" }
       });
-
+// -----------------mengosongkan data setelah di input------------------------------
       console.log(item);
       setKode_Barang('') //menghilangkan saat input
       setNama_Barang('')
@@ -62,6 +61,8 @@ const Barang: React.FC = () => {
       console.log("gagal simpan data barang");
     }
   };
+
+    // ---------------UPDATE ATAU EDIT----------------------------
 
   // Fungsi untuk mengatur ulang form (DITAMBAHKAN)
   const resetForm = () => {
