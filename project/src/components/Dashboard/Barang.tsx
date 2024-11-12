@@ -2,6 +2,9 @@
 import axios from "axios";
 import Link from "next/link";
 import React, { FormEvent, useEffect, useState } from "react";
+import { withUt } from "uploadthing/tw";
+import { UploadButton } from "@/utils/uploadthing";
+
 
 type barang = {
   id: number
@@ -47,7 +50,7 @@ const Barang: React.FC = () => {
       }, {
         headers: { "Content-Type": "application/json" }
       });
-// -----------------mengosongkan data setelah di input------------------------------
+      // -----------------mengosongkan data setelah di input------------------------------
       console.log(item);
       setKode_Barang('') //menghilangkan saat input
       setNama_Barang('')
@@ -62,7 +65,7 @@ const Barang: React.FC = () => {
     }
   };
 
-    // ---------------UPDATE ATAU EDIT----------------------------
+  // ---------------UPDATE ATAU EDIT----------------------------
 
   // Fungsi untuk mengatur ulang form (DITAMBAHKAN)
   const resetForm = () => {
@@ -150,6 +153,12 @@ const Barang: React.FC = () => {
   };
   // -----------------------END DELETE--------------------------
 
+  // --------------------------UPLOAD IMAGES-----------------------------
+  const [imageURL, setImageUrl] = useState<string>('');
+
+
+  // ---------------------------END IMAGES--------------------------------
+
   return (
     <>
       <div className="flex flex-row gap-9">
@@ -227,13 +236,22 @@ const Barang: React.FC = () => {
                   <label className="mb-2 mt-3 block text-sm font-medium text-black dark:text-white">
                     Images
                   </label>
-                  <input
+                  <UploadButton 
+                  endpoint={'imageUploader'} onClientUploadComplete={(res) => {
+                    console.log("Files: ", res);
+                    alert("Upload Completed");
+                  }}
+                    onUploadError={(error: Error) => {
+                      alert(`ERROR! ${error.message}`);
+                    }} 
+                    className="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition"/>
+                  {/* <input
                     value={image}
                     onChange={(e) => { setImage(e.target.value) }}
                     type="Text"
                     placeholder="Default Input"
                     className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  />
+                  /> */}
                 </div>
                 <div className="flex justify-end mt-5">
                   <button
