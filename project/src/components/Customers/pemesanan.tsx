@@ -1,6 +1,7 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+
 import axios from 'axios';
 
 type Barang = {
@@ -13,8 +14,19 @@ type Barang = {
   image: string;
 };
 
+type pembayaran = {
+  id_user: number
+    id_barang: number
+    tanggal: Date
+    jumlah_beli: number
+    status: string
+}
+
+
 
 const Pemesanan: React.FC = () => {
+
+  // --------------------------------- MENAMPILKAN DATA BARANG BERDASARKAN ID-----------------------------
   const { id } = useParams(); // Ambil parameter id dari URL
   const [barang, setBarang] = useState<Barang | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,6 +50,49 @@ const Pemesanan: React.FC = () => {
 
   if (loading) return <div>Loading...</div>;
   if (!barang) return <div>Barang tidak ditemukan.</div>;
+
+  // --------------------END MENAMPIKAN BARANG----------------------------
+
+  const [id_user, setid_user] = useState("");
+  const [id_barang, setid_barang] = useState("");
+  const [tanggal, setTanggal] = useState("");
+  const [jumlah_beli, setJumlah_beli] = useState("");
+  const [status, setStatus] = useState("");
+  const [items, setItems] = useState("");
+
+  useEffect(() => {
+    const itemData =  async () => {
+      const response = await axios.get("/api/pemesanan");
+      setItems(response.data.data)
+    }
+    itemData();
+  }, []);
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) =>{
+    e.preventDefault()
+
+    try {
+      const item = await axios.post("/api/pemesanan",{
+        id_user: id_user,
+        id_barang: id_barang,
+        tanggal: tanggal,
+        jumlah_beli: jumlah_beli,
+        status: status,
+      },{
+        headers: {"Content-Type": "application/json"}
+      });
+
+      console.log(item);
+      setid_user('');
+      setid_barang('');
+      setTanggal('');
+      setJumlah_beli('');
+      setStatus('');
+      setid_user('');
+    } catch (error) {
+      console.log("gagal memesan barang");
+    }
+  }
 
   return (
     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark p-6.5">
