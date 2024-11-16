@@ -1,11 +1,50 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
+import axios from "axios";
 
 
 const SignIn: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await axios.post('/api/auth/login', {
+        email,
+        password,
+      }, { withCredentials: true });
+
+      if (response.status === 200) {
+        window.location.href = "/";
+      } else {
+        setError(response.data.msg || "Login gagal");
+      }
+    } catch (error: any) {
+      if (error.response) {
+        const errorData = error.response.data;
+        if (error.response.status === 404) setError("You are not registered");
+        else if (error.response.status === 401) setError("Invalid credentials");
+        else if (error.response.status === 400) setError(errorData.msg || "Error occurred");
+        else setError("Something went wrong");
+      } else {
+        setError("Failed to connect to the server");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   return (
     <DefaultLayout>
       <Breadcrumb pageName="Sign In" />
@@ -156,7 +195,7 @@ const SignIn: React.FC = () => {
                 Sign In to BuyStock
               </h2>
 
-              <form>
+              <form onSubmit={handleLogin}>
                 <div className="mb-4">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
                     Email
@@ -164,6 +203,8 @@ const SignIn: React.FC = () => {
                   <div className="relative">
                     <input
                       type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter your email"
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     />
@@ -195,6 +236,8 @@ const SignIn: React.FC = () => {
                   <div className="relative">
                     <input
                       type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       placeholder="6+ Characters, 1 Capital letter"
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     />
@@ -276,6 +319,7 @@ const SignIn: React.FC = () => {
                     </Link>
                   </p>
                 </div>
+                {error && <p className="text-red-500">{error}</p>}
               </form>
             </div>
           </div>
