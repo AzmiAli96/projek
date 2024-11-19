@@ -58,7 +58,7 @@ model Pembayaran{
 model Pengeluaran{
   id Int @id @default(autoincrement())
   jenis_pengeluaran String
-  Ket String
+  ket String
   biaya Decimal
   tanggal DateTime
   rekap Rekap[]
