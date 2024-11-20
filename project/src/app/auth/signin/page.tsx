@@ -4,7 +4,9 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
+
 import axios from "axios";
+import { getUserInfo } from "@/utils/auth";
 
 
 const SignIn: React.FC = () => {
@@ -12,37 +14,46 @@ const SignIn: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [userInfo, setUserInfo] = useState<any | null>(null);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    try {
-      const response = await axios.post('/api/auth/login', {
-        email,
-        password,
-      }, { withCredentials: true });
 
-      if (response.status === 200) {
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        // Simpan token ke localStorage
+        localStorage.setItem("token", result.data.token);
+
+        // Redirect ke halaman utama
         window.location.href = "/";
       } else {
-        setError(response.data.msg || "Login gagal");
+        // Tangani error dari server
+        setError(result.msg || "Login gagal");
       }
-    } catch (error: any) {
-      if (error.response) {
-        const errorData = error.response.data;
-        if (error.response.status === 404) setError("You are not registered");
-        else if (error.response.status === 401) setError("Invalid credentials");
-        else if (error.response.status === 400) setError(errorData.msg || "Error occurred");
-        else setError("Something went wrong");
-      } else {
-        setError("Failed to connect to the server");
-      }
+    } catch (error) {
+      // Tangani error jaringan
+      setError("Gagal terhubung ke server");
     } finally {
       setLoading(false);
     }
+    const userInfo = getUserInfo();
+    if (userInfo) {
+      console.log("User Info", userInfo)
+    }
   };
+
+
 
 
   return (

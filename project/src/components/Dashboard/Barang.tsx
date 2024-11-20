@@ -3,7 +3,7 @@ import axios from "axios";
 import Link from "next/link";
 import React, { FormEvent, useEffect, useState } from "react";
 // import { withUt } from "uploadthing/tw";
-import { UploadButton } from "@/utils/uploadthing";
+import { getUserInfo } from "@/utils/auth";
 
 
 type barang = {
@@ -151,6 +151,11 @@ const Barang: React.FC = () => {
       console.log("Gagal menghapus barang");
     }
   };
+
+  console.log(getUserInfo());
+  
+  const nama = getUserInfo()?.name;
+  
   // -----------------------END DELETE--------------------------
 
   // --------------------------UPLOAD IMAGES-----------------------------
@@ -161,6 +166,7 @@ const Barang: React.FC = () => {
 
   return (
     <>
+    <h1>{nama}</h1>
       <div className="flex flex-row gap-9">
         {/* <!-- Bagian Input Data --> */}
         <div className="w-1/4 flex flex-col gap-9">

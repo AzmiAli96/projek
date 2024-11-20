@@ -2,6 +2,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
+import { getUserInfo } from '@/utils/auth';
 
 type Barang = {
   id: number;
@@ -74,7 +75,7 @@ const Pemesanan: React.FC = () => {
       const response = await axios.post(
         "/api/pemesanan",
         {
-          id_user,
+          id_user: getUserInfo()?.id,
           id_barang,
           tanggal,
           jumlah_beli: quantity,
