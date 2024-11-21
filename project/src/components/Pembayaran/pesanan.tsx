@@ -1,11 +1,42 @@
+"use client";
+
 import Breadcrumb from "../Breadcrumbs/Breadcrumb";
 import React, { FormEvent, useEffect, useState } from "react";
 import axios from "axios";
 
+type barang = {
+  kode_barang: string;
+  nama_barang: string;
+  harga: number;
+}
 
-
+type pesanan = {
+  id_user: number
+  id_barang: barang
+  tanggal: Date
+  jumlah_beli: number
+  status: string
+}
 
 const Pesanan = () => {
+  const [items, setItems] = useState<pesanan[]>([]);
+
+  useEffect(() => {
+    const itemData = async () => {
+      try {
+        const response = await axios.get("api/pemesanan");
+        setItems(response.data.data);
+      } catch (error) {
+        console.log("gagal mengambil data pesanan")
+      }
+    };
+    itemData();
+  }, []);
+
+  const totalharaga = (item: pesanan) => {
+    return item.id_barang.harga * item.jumlah_beli;
+  }
+
 
   return (
     <div className="flex flex-row gap-9">
@@ -15,16 +46,13 @@ const Pesanan = () => {
           Pesanan Saya
         </h4>
 
-        <button>
-          
-        </button>
-
         <table className="table-fixed w-full border border-stroke bg-white shadow-lg rounded-lg overflow-hidden mb-5">
           <thead className="font-semibold text-black bg-gray-200">
             <tr>
               <td className="w-1/12 p-4 text-center border-b border-stroke">No</td>
-              <td className="w-2/12 p-4 text-center border-b border-stroke">email/customer</td>
+              <td className="w-2/12 p-4 text-center border-b border-stroke">Tanggal</td>
               <td className="w-3/12 p-4 text-center border-b border-stroke">kode barang</td>
+              <td className="w-3/12 p-4 text-center border-b border-stroke">Nama Barang</td>
               <td className="w-3/12 p-4 text-center border-b border-stroke">jumlah beli</td>
               <td className="w-2/12 p-4 text-center border-b border-stroke">Harga</td>
               <td className="w-2/12 p-4 text-center border-b border-stroke">status</td>
@@ -32,50 +60,20 @@ const Pesanan = () => {
             </tr>
           </thead>
           <tbody className="text-black">
-            <tr>
-              <td className="p-4 text-center border-b border-stroke"></td>
-              <td className="p-4 text-center border-b border-stroke"></td>
-              <td className="p-4 text-center border-b border-stroke"></td>
-              <td className="p-4 text-center border-b border-stroke"></td>
-              <td className="p-4 text-center border-b border-stroke"></td>
-              <td className="p-4 text-center border-b border-stroke"></td>
+            {items.map((item: pesanan, index)=> (
+            <tr key={index}>
+              <td className="p-4 text-center border-b border-stroke">{index + 1}</td>
+              <td className="p-4 text-center border-b border-stroke">{new Date(item.tanggal).toLocaleDateString()}</td>
+              <td className="p-4 text-center border-b border-stroke">{item.id_barang.kode_barang}</td>
+              <td className="p-4 text-center border-b border-stroke">{item.id_barang.nama_barang}</td>
+              <td className="p-4 text-center border-b border-stroke">{item.jumlah_beli}</td>
+              <td className="p-4 text-center border-b border-stroke">{totalharaga(item).toLocaleString()}</td>
+              <td className="p-4 text-center border-b border-stroke">{item.status}</td>
               <td className="p-4 text-center border-b border-stroke">
-                <div className="flex justify-center space-x-2">
-                  <button>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.5"
-                      stroke="currentColor"
-                      className="w-6 h-6 text-blue-600 hover:text-blue-800 transition duration-150"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
-                      />
-                    </svg>
-                  </button>
-                  <button>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.5"
-                      stroke="currentColor"
-                      className="w-6 h-6 text-red-600 hover:text-red-800 transition duration-150"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-                      />
-                    </svg>
-                  </button>
-                </div>
+                
               </td>
             </tr>
+            ))}
           </tbody>
         </table>
       </div>
