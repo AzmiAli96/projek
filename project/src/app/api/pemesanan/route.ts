@@ -4,7 +4,7 @@ const prisma = new PrismaClient()
 
 export async function GET() {
     try {
-        const items = await prisma.pembelian.findMany();
+        const items = await prisma.pembelian.findMany({include: {barang:true}});
         return Response.json({
             statusCode: 200,
             msg: "successfully getting data",
@@ -23,7 +23,12 @@ type pembelian = {
     id_barang: number
     tanggal: Date
     jumlah_beli: number
-    status: string
+    status: string,
+    barang: {
+        kode_barang: string,
+  nama_barang:string,
+  harga:number
+    }
 }
 
 export async function POST(req: Request) {

@@ -1,80 +1,68 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import multer from "multer";
-import path from "path";
 import fs from "fs";
+import path from "path";
 
 const prisma = new PrismaClient();
+const uploadPath = path.join(process.cwd(), "public/uploads");
 
-// Konfigurasi penyimpanan file
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadPath = "./public/uploads"; // Lokasi penyimpanan gambar
-    if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath, { recursive: true });
+// Pastikan folder upload tersedia
+if (!fs.existsSync(uploadPath)) {
+  fs.mkdirSync(uploadPath, { recursive: true });
+}
+
+export async function POST(req: Request) {
+  try {
+    const formData = await req.formData();
+
+    // Ambil file dan data tambahan
+    const file = formData.get("image") as File;
+    const id_user = formData.get("id_user");
+    const id_barang = formData.get("id_barang");
+
+    // Validasi input
+    if (!file || !id_user || !id_barang) {
+      return NextResponse.json(
+        { error: "Gambar, id_user, dan id_barang harus disediakan." },
+        { status: 400 }
+      );
     }
-    cb(null, uploadPath);
-  },
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  },
-});
 
-const upload = multer({ storage });
+    // Simpan file ke folder public/uploads
+    const filePath = path.join(uploadPath, `${Date.now()}-${file.name}`);
+    const buffer = Buffer.from(await file.arrayBuffer());
+    fs.writeFileSync(filePath, buffer);
 
-// Middleware untuk menangani file upload
-const uploadMiddleware = upload.single("image");
+    const imagePath = `/uploads/${path.basename(filePath)}`;
 
-export const config = {
-  api: {
-    bodyParser: false, // Nonaktifkan bodyParser agar multer bisa digunakan
-  },
-};
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === "POST") {
-    uploadMiddleware(req as any, {} as any, async (err: any) => {
-      if (err) {
-        return res.status(500).json({ error: "Gagal mengunggah file" });
-      }
-
-      const file = (req as any).file; // Mendapatkan file dari middleware
-      const { id_user, id_barang } = req.body; // Ambil `id_user` dan `id_barang` dari body
-
-      if (!file) {
-        return res.status(400).json({ error: "File tidak ditemukan" });
-      }
-
-      if (!id_user || !id_barang) {
-        return res.status(400).json({ error: "ID user dan ID barang harus disediakan" });
-      }
-
-      const imagePath = `/uploads/${file.filename}`; // Path file untuk disimpan di database
-
-      try {
-        // Update status pembelian dengan path gambar
-        const pembelian = await prisma.pembelian.updateMany({
-          where: {
-            id_user: parseInt(id_user),
-            id_barang: parseInt(id_barang),
-            status: "Belum Bayar", // Pastikan hanya update yang belum dibayar
-          },
-          data: {
-            status: imagePath, // Simpan path gambar ke kolom `status`
-          },
-        });
-
-        if (pembelian.count === 0) {
-          return res.status(404).json({ error: "Pembelian tidak ditemukan atau sudah terupdate" });
-        }
-
-        return res.status(200).json({ message: "Gambar berhasil diunggah", pembelian });
-      } catch (error) {
-        console.error("Database error:", error);
-        return res.status(500).json({ error: "Gagal menyimpan data ke database" });
-      }
+    // Update database
+    const pembelian = await prisma.pembelian.updateMany({
+      where: {
+        id_user: parseInt(id_user as string),
+        id_barang: parseInt(id_barang as string),
+        status: "Belum Bayar",
+      },
+      data: {
+        status: imagePath, // Simpan path file sebagai status
+      },
     });
-  } else {
-    return res.status(405).json({ error: "Method tidak diizinkan" });
+
+    if (pembelian.count === 0) {
+      return NextResponse.json(
+        { error: "Pembelian tidak ditemukan atau sudah diperbarui." },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      message: "Gambar berhasil diunggah.",
+      data: imagePath,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    return NextResponse.json(
+      { error: "Terjadi kesalahan saat mengunggah gambar." },
+      { status: 500 }
+    );
   }
 }
