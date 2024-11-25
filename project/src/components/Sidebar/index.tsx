@@ -94,7 +94,7 @@ const menuGroups = [
           </svg>
         ),
         label: "Rekap Pengahasilan",
-        route: "/tables",
+        route: "/rekap",
       },
       {
         icon: (

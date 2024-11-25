@@ -43,17 +43,17 @@ model Pembelian{
   tanggal DateTime
   jumlah_beli Int
   status String
-  pembayaran Pembayaran[]
-}
-
-model Pembayaran{
-  id Int @id @default(autoincrement())
-  id_pembelian Int
-  pembelian Pembelian @relation(fields: [id_pembelian], references: [id])
-  harga_bayar Decimal
-  status String
   rekap Rekap[]
 }
+
+// model Pembayaran{
+//   id Int @id @default(autoincrement())
+//   id_pembelian Int
+//   pembelian Pembelian @relation(fields: [id_pembelian], references: [id])
+//   harga_bayar Decimal
+//   status String
+//   rekap Rekap[]
+// }
 
 model Pengeluaran{
   id Int @id @default(autoincrement())
@@ -66,8 +66,8 @@ model Pengeluaran{
 
 model Rekap{
     id Int @id @default(autoincrement())
-    id_pembayaran Int
-    pembayaran Pembayaran @relation(fields: [id_pembayaran], references: [id])
+    id_pembelian Int
+    pembelian Pembelian @relation(fields: [id_pembelian], references: [id])
     id_pengeluaran Int
     pengeluaran Pengeluaran @relation(fields: [id_pengeluaran], references: [id])
     bulan DateTime
