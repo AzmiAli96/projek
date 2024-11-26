@@ -17,16 +17,16 @@ export async function POST(req: Request) {
 
     // Ambil file dan data tambahan
     const file = formData.get("image") as File;
-    const id_user = formData.get("id_user");
-    const id_barang = formData.get("id_barang");
+    const id = formData.get("id");
 
     // Validasi input
-    if (!file || !id_user || !id_barang) {
+    if (!file || !id) {
       return NextResponse.json(
         { error: "Gambar, id_user, dan id_barang harus disediakan." },
         { status: 400 }
       );
     }
+    
 
     // Simpan file ke folder public/uploads
     const filePath = path.join(uploadPath, `${Date.now()}-${file.name}`);
@@ -35,19 +35,14 @@ export async function POST(req: Request) {
 
     const imagePath = `/uploads/${path.basename(filePath)}`;
 
-    // Update database
-    const pembelian = await prisma.pembelian.updateMany({
-      where: {
-        id_user: parseInt(id_user as string),
-        id_barang: parseInt(id_barang as string),
-        status: "Belum Bayar",
-      },
-      data: {
-        status: imagePath, // Simpan path file sebagai status
-      },
-    });
+    const pembelian = await prisma.pembelian.update({
+      where:{id: Number(id)},
+      data:{
+        status: "Sudah Bayar"
+      }
+    })
 
-    if (pembelian.count === 0) {
+    if (!pembelian) {
       return NextResponse.json(
         { error: "Pembelian tidak ditemukan atau sudah diperbarui." },
         { status: 404 }
@@ -61,7 +56,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Error:", error);
     return NextResponse.json(
-      { error: "Terjadi kesalahan saat mengunggah gambar." },
+      { error: `Terjadi kesalahan saat mengunggah gambar: ${error}` },
       { status: 500 }
     );
   }

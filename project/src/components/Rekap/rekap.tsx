@@ -26,9 +26,8 @@ type Pembelian = {
 type RekapHarian = {
   tanggal: string;
   totalPengeluaran: number;
-  totalPenghasilan: number;
-  totalPenghasilanBersih: number;
   totalPenghasilanKotor: number;
+  totalPenghasilanBersih: number;
   totalHutang: number;
 };
 
@@ -63,59 +62,50 @@ const Rekap = () => {
   useEffect(() => {
     const calculateRekapHarian = () => {
       const dataByDate: { [key: string]: RekapHarian } = {};
-  
-      // Kelompokkan data pengeluaran berdasarkan tanggal
+
+      // Proses data pengeluaran
       pengeluaran.forEach((item) => {
         if (!dataByDate[item.tanggal]) {
           dataByDate[item.tanggal] = {
             tanggal: item.tanggal,
             totalPengeluaran: 0,
-            totalPenghasilan: 0,
-            totalPenghasilanBersih: 0,
             totalPenghasilanKotor: 0,
+            totalPenghasilanBersih: 0,
             totalHutang: 0,
           };
         }
-        const biaya = Number(item.biaya) || 0; // Validasi biaya
-        dataByDate[item.tanggal].totalPengeluaran += biaya;
+        dataByDate[item.tanggal].totalPengeluaran += Number(item.biaya) || 0;
       });
-  
-      // Kelompokkan data pembelian berdasarkan tanggal
+
+      // Proses data pembelian
       pembelian.forEach((item) => {
         if (!dataByDate[item.tanggal]) {
           dataByDate[item.tanggal] = {
             tanggal: item.tanggal,
             totalPengeluaran: 0,
-            totalPenghasilan: 0,
-            totalPenghasilanBersih: 0,
             totalPenghasilanKotor: 0,
+            totalPenghasilanBersih: 0,
             totalHutang: 0,
           };
         }
-  
-        const penghasilan =
-          (Number(item.barang.harga) || 0) * (Number(item.jumlah_beli) || 0); // Validasi penghasilan
+
+        const penghasilan = (Number(item.barang?.harga) || 0) * (Number(item.jumlah_beli) || 0);
         const hutang = item.status === "belum bayar" ? penghasilan : 0;
-  
-        // Update total penghasilan kotor
+
         dataByDate[item.tanggal].totalPenghasilanKotor += penghasilan;
-  
-        // Update total hutang
         dataByDate[item.tanggal].totalHutang += hutang;
       });
-  
-      // Hitung Total Penghasilan Bersih (Kotor - Pengeluaran - Hutang)
+
+      // Hitung total penghasilan bersih (kotor - pengeluaran - hutang)
       Object.values(dataByDate).forEach((data) => {
         data.totalPenghasilanBersih =
-          data.totalPenghasilanKotor -
-          data.totalPengeluaran -
-          data.totalHutang; // Langsung kurangi hutang tanpa validasi tambahan
+          data.totalPenghasilanKotor - data.totalPengeluaran - data.totalHutang;
       });
-  
-      // Update state rekap harian
+
+      // Set state untuk rekap harian
       setRekapHarian(Object.values(dataByDate));
     };
-  
+
     calculateRekapHarian();
   }, [pengeluaran, pembelian]);
   
@@ -134,11 +124,10 @@ const Rekap = () => {
             <tr>
               <td className="w-1/12 p-4 text-center border-b border-stroke">No</td>
               <td className="w-2/12 p-4 text-center border-b border-stroke">Tanggal</td>
-              <td className="w-2/12 p-4 text-center border-b border-stroke">Total Penghasilan</td>
-              <td className="w-3/12 p-4 text-center border-b border-stroke">Total Pengeluaran</td>
               <td className="w-2/12 p-4 text-center border-b border-stroke">
                 Total Penghasilan Kotor
               </td>
+              <td className="w-3/12 p-4 text-center border-b border-stroke">Total Pengeluaran</td>
               <td className="w-2/12 p-4 text-center border-b border-stroke">
                 Total Hutang
               </td>
@@ -153,13 +142,10 @@ const Rekap = () => {
                 <td className="p-4 text-center border-b border-stroke">{index + 1}</td>
                 <td className="p-4 text-center border-b border-stroke">{new Date(item.tanggal).toLocaleDateString("id-ID", { day: "2-digit", month: "long" })}</td>
                 <td className="p-4 text-center border-b border-stroke">
-                  {item.totalPenghasilan.toLocaleString()}
+                  {item.totalPenghasilanKotor.toLocaleString()}
                 </td>
                 <td className="p-4 text-center border-b border-stroke">
                   {item.totalPengeluaran.toLocaleString()}
-                </td>
-                <td className="p-4 text-center border-b border-stroke">
-                  {item.totalPenghasilanKotor.toLocaleString()}
                 </td>
                 <td className="p-4 text-center border-b border-stroke">
                   {typeof item.totalHutang === "number"

@@ -7,11 +7,14 @@ import Image from "next/image";
 import SidebarItem from "@/components/Sidebar/SidebarItem";
 import ClickOutside from "@/components/ClickOutside";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { getUserInfo } from "@/utils/auth";
 
 interface SidebarProps {
   sidebarOpen: boolean;
   setSidebarOpen: (arg: boolean) => void;
 }
+
+const role = getUserInfo()?.level;
 
 const menuGroups = [
   {
@@ -50,7 +53,8 @@ const menuGroups = [
         ),
         // routernya 
         label: "Barang",
-        route: "/"
+        route: "/",
+        role: ["admin"]
       },
       {
         icon: (

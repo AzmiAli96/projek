@@ -3,23 +3,19 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-type Barang = {
-  kode_barang: string;
-  nama_barang: string;
-  harga: number;
-};
 
 type Pesanan = {
+  id: number;
   id_user: number;
-  id_barang: Barang;
+  id_barang: number;
   tanggal: Date;
   jumlah_beli: number;
   status: string;
   barang: {
     kode_barang: string,
-nama_barang:string,
-harga:number
-}
+    nama_barang: string,
+    harga: number
+  }
 };
 
 const Pesanan = () => {
@@ -35,7 +31,7 @@ const Pesanan = () => {
         setItems(response.data.data);
 
         console.log(response.data.data);
-        
+
       } catch (error) {
         console.log("Gagal mengambil data pesanan");
       }
@@ -59,36 +55,46 @@ const Pesanan = () => {
     }
 
     try {
+      console.log(selectedItem.barang);
+
       const formData = new FormData();
       formData.append("image", uploadedImage);
-      formData.append("id_user", selectedItem.id_user.toString());
-      formData.append("id_barang", selectedItem.id_barang.kode_barang);
+      formData.append("id", selectedItem.id.toString());
 
-      const response = await axios.post("/api/upload", formData, {
+      const response = await axios.post<{ data: string }>("/api/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
 
-      console.log("Response:", response.data);
+      console.log("Response from backend:", response.data);
 
-      // Perbarui status di tampilan
+      const imagePath = response.data.data;
+
+      // Perbarui item dengan path gambar baru
       setItems((prevItems) =>
         prevItems.map((item) =>
           item.id_user === selectedItem.id_user &&
-          item.id_barang.kode_barang === selectedItem.id_barang.kode_barang
-            ? { ...item, status: "Sudah Bayar" }
+            item.id_barang === selectedItem.id_barang
+            ? { ...item, status: imagePath } // Perbarui status dengan path gambar
             : item
         )
       );
 
       setShowModal(false);
       alert("Bukti pembayaran berhasil diunggah.");
-    } catch (error) {
+    } catch (error: any) {
+      // Tangani error yang terjadi selama upload
       console.error("Error uploading image:", error);
-      alert("Gagal mengunggah gambar. Coba lagi.");
+
+      if (axios.isAxiosError(error)) {
+        alert(`Gagal mengunggah gambar: ${error.response?.data?.error || "Coba lagi."}`);
+      } else {
+        alert("Terjadi kesalahan. Coba lagi.");
+      }
     }
   };
+
 
   return (
     <div className="flex flex-row gap-9">
@@ -115,15 +121,38 @@ const Pesanan = () => {
               <tr key={index}>
                 <td className="p-4 text-center border-b border-stroke">{index + 1}</td>
                 <td className="p-4 text-center border-b border-stroke">
-                  {new Date(item.tanggal).toLocaleDateString()}
+                  {new Date(item.tanggal).toLocaleDateString("id-ID", { day: "2-digit", month: "long"})}
                 </td>
                 <td className="p-4 text-center border-b border-stroke">{item.barang.kode_barang}</td>
-                <td className="p-4 text-center border-b border-stroke">{item.id_barang.nama_barang}</td>
+                <td className="p-4 text-center border-b border-stroke">{item.barang.nama_barang}</td>
                 <td className="p-4 text-center border-b border-stroke">{item.jumlah_beli}</td>
                 <td className="p-4 text-center border-b border-stroke">
                   {totalHarga(item).toLocaleString()}
                 </td>
-                <td className="p-4 text-center border-b border-stroke">{item.status}</td>
+                {/* <td className="p-4 text-center border-b border-stroke">
+                  {item.status.startsWith("/uploads/") ? (
+                    <img
+                      src={item.status}
+                      alt="Bukti Pembayaran"
+                      className="w-20 h-20 object-cover mx-auto rounded"
+                    />
+                  ) : (
+                    item.status
+                  )}
+                </td> */}
+                <td>
+                  <div className={`text-center border-b border-stroke ${item.status.toLowerCase() === "sudah bayar"
+                      ? "bg-green-600 text-white font-semibold rounded-full text-sm px-2 py-0.5"
+                      : "bg-gray-400 text-white font-semibold rounded-full text-sm px-2 py-0.5"
+                    }`}>
+
+                  {item.status.toUpperCase()}
+                  </div>
+                </td>
+
+
+
+
                 <td className="p-4 text-center border-b border-stroke">
                   <button
                     onClick={() => handleStatusUpdate(item)}

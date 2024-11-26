@@ -2,8 +2,6 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
 
 import axios from "axios";
 import { getUserInfo } from "@/utils/auth";
@@ -57,19 +55,16 @@ const SignIn: React.FC = () => {
 
 
   return (
-    <DefaultLayout>
-      <Breadcrumb pageName="Sign In" />
-
-      <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div className="flex flex-wrap items-center">
-          <div className="hidden w-full xl:block xl:w-1/2">
+    <div>
+      <div className="flex h-screen items-center justify-center bg-gray-100">
+        <div className="flex w-[90%] max-w-[1000px] rounded-[15px] border border-gray-300 bg-white shadow-md">
+          <div className="hidden w-1/2 xl:flex items-center justify-center bg-gray-200 p-10 rounded-l-[15px]">
             {/* Sisi Kiri */}
             <div className="px-26 py-17.5 text-center">
 
 
               <p className="2xl:px-20">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit
-                suspendisse.
+                Selamat Datang di TokRek
               </p>
               {/* Gambar Kiri */}
               <span className="mt-15 inline-block">
@@ -199,7 +194,7 @@ const SignIn: React.FC = () => {
             {/* End Sisi Kiri */}
           </div>
 
-          <div className="w-full border-stroke dark:border-strokedark xl:w-1/2 xl:border-l-2">
+          <div className="w-full xl:w-1/2 p-8">
             <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
               <span className="mb-1.5 block font-medium">Start for free</span>
               <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
@@ -208,6 +203,7 @@ const SignIn: React.FC = () => {
 
               <form onSubmit={handleLogin}>
                 <div className="mb-4">
+                {error && <p className="text-red-500">{error}</p>}
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
                     Email
                   </label>
@@ -330,13 +326,13 @@ const SignIn: React.FC = () => {
                     </Link>
                   </p>
                 </div>
-                {error && <p className="text-red-500">{error}</p>}
               </form>
             </div>
           </div>
         </div>
       </div>
-    </DefaultLayout>
+
+    </div>
   );
 };
 

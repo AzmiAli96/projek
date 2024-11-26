@@ -4,7 +4,7 @@ const prisma = new PrismaClient()
 
 export async function GET() {
     try {
-        const items = await prisma.pembelian.findMany({include: {barang:true}});
+        const items = await prisma.pembelian.findMany({include: {barang:true, user:true}});
         return Response.json({
             statusCode: 200,
             msg: "successfully getting data",
@@ -28,6 +28,10 @@ type pembelian = {
         kode_barang: string,
   nama_barang:string,
   harga:number
+    }
+    user: {
+        name: string
+        email: string
     }
 }
 
