@@ -64,7 +64,7 @@ const PemesananB = () => {
           <thead className="font-semibold text-black bg-gray-200">
             <tr>
               <td className="p-4 text-center border-b border-stroke">No</td>
-              <td   className="p-4 text-center border-b border-stroke">Nama</td>
+              <td className="p-4 text-center border-b border-stroke">Nama</td>
               <td className="p-4 text-center border-b border-stroke">Tanggal</td>
               <td className="p-4 text-center border-b border-stroke">Kode Barang</td>
               <td className="p-4 text-center border-b border-stroke">Nama Barang</td>
@@ -81,7 +81,7 @@ const PemesananB = () => {
                   {item.user.name}
                 </td>
                 <td className="p-4 text-center border-b border-stroke">
-                  {new Date(item.tanggal).toLocaleDateString("id-ID", { day: "2-digit", month: "long"})}
+                  {new Date(item.tanggal).toLocaleDateString("id-ID", { day: "2-digit", month: "long" })}
                 </td>
                 <td className="p-4 text-center border-b border-stroke">{item.barang.kode_barang}</td>
                 <td className="p-4 text-center border-b border-stroke">{item.barang.nama_barang}</td>
@@ -91,11 +91,10 @@ const PemesananB = () => {
                 </td>
                 <td>
                   <div
-                    className={`text-center cursor-pointer ${
-                      item.status.toLowerCase() === "sudah bayar"
-                        ? "bg-green-600 text-white rounded-full text-sm px-4 py-1"
-                        : "bg-gray-400 text-white rounded-full text-sm px-4 py-1"
-                    }`}
+                    className={`text-center cursor-pointer ${item.status.toLowerCase() === "sudah bayar"
+                      ? "bg-green-600 text-white rounded-full text-sm px-4 py-1"
+                      : "bg-gray-400 text-white rounded-full text-sm px-4 py-1"
+                      }`}
                     onClick={() => handleStatusClick(item)}
                   >
                     {item.status.toUpperCase()}
@@ -119,12 +118,23 @@ const PemesananB = () => {
               ✕
             </button>
             {/* Display Image */}
-            {imageSrc ? (
+            {/* {imageSrc ? (
               <img
                 src={imageSrc}
                 alt="Bukti Pembayaran"
                 className="w-40 h-40 object-cover mx-auto rounded"
               />
+            ) : (
+              <p className="text-center text-gray-700 font-medium">Tidak ada gambar</p>
+            )} */}
+            {imageSrc ? (
+              <div>
+                <img
+                  src={imageSrc}
+                  alt="Preview"
+                  className="w-full h-auto object-contain mx-auto"
+                />
+              </div>
             ) : (
               <p className="text-center text-gray-700 font-medium">Tidak ada gambar</p>
             )}

@@ -3,6 +3,7 @@ import { FormEvent, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
 import { getUserInfo } from '@/utils/auth';
+import toast from 'react-hot-toast';
 
 type Barang = {
   id: number;
@@ -85,6 +86,7 @@ const Pemesanan: React.FC = () => {
           headers: { "Content-Type": "application/json" },
         }
       );
+      toast.success("Pemesanan Berhasil Dilakukan");
 
       console.log(response.data);
       // Reset form fields
@@ -94,6 +96,7 @@ const Pemesanan: React.FC = () => {
       // setStatus("belum bayar");
     } catch (error) {
       console.error("Gagal memesan barang:", error);
+      toast.error("Gagal melakukan pemesan. Silahkan coba lagi")
     }
   };
 

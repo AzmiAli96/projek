@@ -42,6 +42,13 @@ export async function POST(req: Request) {
       }
     })
 
+    const barang = await prisma.barang.update({
+      where:{id: Number(id)},
+      data:{
+        image: imagePath,
+      }
+    })
+
     if (!pembelian) {
       return NextResponse.json(
         { error: "Pembelian tidak ditemukan atau sudah diperbarui." },
