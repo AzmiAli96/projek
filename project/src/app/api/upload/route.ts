@@ -38,16 +38,16 @@ export async function POST(req: Request) {
     const pembelian = await prisma.pembelian.update({
       where:{id: Number(id)},
       data:{
-        status: "Sudah Bayar"
+        status: imagePath,
       }
     })
 
-    const barang = await prisma.barang.update({
-      where:{id: Number(id)},
-      data:{
-        image: imagePath,
-      }
-    })
+    // const barang = await prisma.barang.update({
+    //   where:{id: Number(id)},
+    //   data:{
+    //     image: imagePath,
+    //   }
+    // })
 
     if (!pembelian) {
       return NextResponse.json(

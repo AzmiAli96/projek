@@ -44,7 +44,8 @@ const PemesananB = () => {
   };
 
   const handleStatusClick = (item: Pesanan) => {
-    if (item.status.toLowerCase() === "sudah bayar") {
+    console.log('Status Clicked:', item.status);
+    if (item.status.includes("/upload")) {
       setImageSrc(item.status); // Atur sumber gambar dari item
       setShowModal(true); // Tampilkan modal
     }
@@ -89,7 +90,7 @@ const PemesananB = () => {
                 <td className="p-4 text-center border-b border-stroke">
                   {totalHarga(item).toLocaleString()}
                 </td>
-                <td>
+                {/* <td>
                   <div
                     className={`text-center cursor-pointer ${item.status.toLowerCase() === "sudah bayar"
                       ? "bg-green-600 text-white rounded-full text-sm px-4 py-1"
@@ -98,6 +99,15 @@ const PemesananB = () => {
                     onClick={() => handleStatusClick(item)}
                   >
                     {item.status.toUpperCase()}
+                  </div>
+                </td> */}
+                <td>
+                  <div className={`text-center border-b border-stroke ${item.status.includes("/upload")
+                      ? "bg-green-600 text-white font-semibold rounded-full text-sm px-2 py-0.5"
+                      : "bg-gray-400 text-white font-semibold rounded-full text-sm px-2 py-0.5"
+                    }`}
+                    onClick={() => handleStatusClick(item)}>
+                    {item.status.includes("/upload") ? "Sudah Bayar" : "Belum Bayar"}
                   </div>
                 </td>
               </tr>

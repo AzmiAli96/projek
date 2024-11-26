@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 
 type Pesanan = {
@@ -68,6 +69,7 @@ const Pesanan = () => {
       });
 
       console.log("Response from backend:", response.data);
+      
 
       const imagePath = response.data.data;
 
@@ -82,15 +84,19 @@ const Pesanan = () => {
       );
 
       setShowModal(false);
-      alert("Bukti pembayaran berhasil diunggah.");
+      // alert("Bukti pembayaran berhasil diunggah.");
+      toast.success("Success To Upload Image");
     } catch (error: any) {
       // Tangani error yang terjadi selama upload
       console.error("Error uploading image:", error);
+      
 
       if (axios.isAxiosError(error)) {
-        alert(`Gagal mengunggah gambar: ${error.response?.data?.error || "Coba lagi."}`);
+        // alert(`Gagal mengunggah gambar: ${error.response?.data?.error || "Coba lagi."}`);
+        toast.error(`Error to Uploding image: ${error.response?.data?.error || "Try Again."}`);
       } else {
-        alert("Terjadi kesalahan. Coba lagi.");
+        // alert("Terjadi kesalahan. Coba lagi.");
+        toast.error("Someting wrong. Try again");
       }
     }
   };
@@ -121,7 +127,7 @@ const Pesanan = () => {
               <tr key={index}>
                 <td className="p-4 text-center border-b border-stroke">{index + 1}</td>
                 <td className="p-4 text-center border-b border-stroke">
-                  {new Date(item.tanggal).toLocaleDateString("id-ID", { day: "2-digit", month: "long"})}
+                  {new Date(item.tanggal).toLocaleDateString("id-ID", { day: "2-digit", month: "long" })}
                 </td>
                 <td className="p-4 text-center border-b border-stroke">{item.barang.kode_barang}</td>
                 <td className="p-4 text-center border-b border-stroke">{item.barang.nama_barang}</td>
@@ -141,12 +147,11 @@ const Pesanan = () => {
                   )}
                 </td> */}
                 <td>
-                  <div className={`text-center border-b border-stroke ${item.status.toLowerCase() === "sudah bayar"
+                  <div className={`text-center border-b border-stroke ${item.status.includes("/upload")
                       ? "bg-green-600 text-white font-semibold rounded-full text-sm px-2 py-0.5"
                       : "bg-gray-400 text-white font-semibold rounded-full text-sm px-2 py-0.5"
                     }`}>
-
-                  {item.status.toUpperCase()}
+                    {item.status.includes("/upload") ? "Sudah Bayar" : "Belum Bayar"}
                   </div>
                 </td>
 

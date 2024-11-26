@@ -90,7 +90,7 @@ const Rekap = () => {
         }
 
         const penghasilan = (Number(item.barang?.harga) || 0) * (Number(item.jumlah_beli) || 0);
-        const hutang = item.status === "belum bayar" ? penghasilan : 0;
+        const hutang = item.status.includes("/upload") ? 0 : penghasilan;
 
         dataByDate[item.tanggal].totalPenghasilanKotor += penghasilan;
         dataByDate[item.tanggal].totalHutang += hutang;
