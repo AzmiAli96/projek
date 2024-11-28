@@ -62,7 +62,7 @@ const Pesanan = () => {
       formData.append("image", uploadedImage);
       formData.append("id", selectedItem.id.toString());
 
-      const response = await axios.post<{ data: string }>("/api/upload", formData, {
+      const response = await axios.post<{ data: string }>("/api/upload/pembelian", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

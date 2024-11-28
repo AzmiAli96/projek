@@ -4,7 +4,11 @@ const prisma = new PrismaClient()
 
 export async function GET() {
     try {
-        const items = await prisma.barang.findMany();
+        const items = await prisma.barang.findMany({
+            orderBy:{
+                id: "asc"
+            }
+        });
        return Response.json({
             statusCode: 200,
             msg: "successfully getting data",

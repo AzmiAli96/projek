@@ -175,6 +175,7 @@ const Pemesanan: React.FC = () => {
           </div>
         </div>
       </div>
+        <h4 className='max-w-[200px] text-wrap'>{barang.ket}</h4>
     </div>
   );
 };
