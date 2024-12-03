@@ -34,7 +34,7 @@ const SignIn: React.FC = () => {
         localStorage.setItem("token", result.data.token);
 
         // Redirect ke halaman utama
-        window.location.href = "/";
+        window.location.href = result.data.redirectUrl;
       } else {
         // Tangani error dari server
         setError(result.msg || "Login gagal");

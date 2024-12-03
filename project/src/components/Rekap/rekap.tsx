@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable"; 
 
 type Pengeluaran = {
   jenis_pengeluaran: string;
@@ -107,9 +109,46 @@ const Rekap = () => {
     };
 
     calculateRekapHarian();
-  }, [pengeluaran, pembelian]);
+  }, [pengeluaran, pembelian]
+  );
+
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF();
   
+    // Judul PDF
+    doc.setFontSize(16);
+    doc.text("Rekap Data Keuangan Harian", 14, 16);
   
+    // Kolom untuk tabel
+    const tableColumn = [
+      "No", 
+      "Tanggal", 
+      "Penghasilan Kotor", 
+      "Pengeluaran", 
+      "Hutang", 
+      "Penghasilan Bersih"
+    ];
+  
+    // Isi data untuk tabel
+    const tableRow = rekapHarian.map((item, index) => [
+      index + 1,
+      new Date(item.tanggal).toLocaleDateString("id-ID", { day: "2-digit", month: "long" }),
+      item.totalPenghasilanKotor.toString(),
+      item.totalPengeluaran.toString(),
+      item.totalHutang.toString(),
+      item.totalPenghasilanBersih.toString(),
+    ]);
+  
+    // Memanggil autoTable untuk menambahkan tabel
+    // doc.autoTable({
+    //   head: [tableColumn], // Kolom header
+    //   body: tableRow,      // Baris data
+    //   startY: 30,          // Menentukan posisi Y untuk tabel
+    // });
+  
+    // Simpan file PDF
+    doc.save("Rekap_Keuangan.pdf");
+  };
 
 
   return (
@@ -118,7 +157,11 @@ const Rekap = () => {
         <h4 className="mb-6 text-xl font-semibold text-black dark:text-white">
           Informasi Data Keuangan Harian
         </h4>
-
+        <button 
+        onClick={handleDownloadPDF}
+        className="mb-6 p-2 bg-blue-500 text-white rounded">
+          Download PDF
+        </button>
         <table className="table-fixed w-full border border-stroke bg-white shadow-lg rounded-lg overflow-hidden mb-5">
           <thead className="font-semibold text-black bg-gray-200">
             <tr>

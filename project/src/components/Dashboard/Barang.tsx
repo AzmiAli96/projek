@@ -228,37 +228,9 @@ const Barang: React.FC = () => {
 
   console.log(getUserInfo());
 
-  const nama = getUserInfo()?.name;
-
   // -----------------------END DELETE--------------------------
 
-  // --------------------------UPLOAD IMAGES-----------------------------
-  // const handleImageUpload = async () => {
-  //   if (!uploadedImage || !selectedItem) {
-  //     alert("Harap pilih gambar dan pastikan item dipilih.");
-  //     return;
-  //   }
-  //   try {
-  //     const formData = new FormData();
-  //     formData.append("image", uploadedImage);
-  //     formData.append("id", selectedItem.id.toString());
-      
-  //     const response = await axios.post<{ data: string }>("/api/upload", formData, {
-  //       headers: {
-  //         "Content-Type": "multipart/form-data",
-  //       },
-  //     });
-
-  //     console.log("Response from backend:", response.data);
-      
-  //   } catch (error) {
-  //     console.error("Error uploading image:", error);
-  //   }
-  // }
-
-
-    // ---------------------------END IMAGES--------------------------------
-
+  // ---------------------- SEARCH ---------------------------------
     const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       const value = event.target.value;
       setSearchTerm(value);
@@ -272,10 +244,10 @@ const Barang: React.FC = () => {
       setFilteredBarang(filtered);
     };
     const barangToDisplay = searchTerm ? filteredBarang : items;
+    // ---------------------- END SEARCH ---------------------------------
 
     return (
       <>
-        <h1>{nama}</h1>
         <div className="flex flex-row gap-9">
           {/* <!-- Bagian Input Data --> */}
           <div className="w-1/4 flex flex-col gap-9">

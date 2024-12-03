@@ -1,5 +1,5 @@
 import { PrismaClient, User } from "@prisma/client";
-import {sign} from 'jsonwebtoken';
+import { sign } from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 // const jwt = require('jsonwebtoken');
@@ -8,10 +8,10 @@ const prisma = new PrismaClient();
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const {email, password} = body as {email: string; password: string};
+        const { email, password } = body as { email: string; password: string };
 
         const user = await prisma.user.findUnique({
-            where: {email}
+            where: { email }
         });
 
         if (!user || !user.password) {
@@ -20,36 +20,55 @@ export async function POST(req: Request) {
                 msg: "User not registered or missing password"
             }), { status: 400 });
         }
-        
+
         // const isPasswordValid = await bcrypt.compare(password, user.password);
         const isPasswordValid = password === user.password;
         if (!isPasswordValid) {
             return new Response(JSON.stringify({
                 statusCode: 400,
                 msg: "invalid credentials"
-            }),{status: 400});
-        } 
+            }), { status: 400 });
+        }
 
-        const token = sign(      
-             {id: user.id, email: user.email, name: user.name},
-              process.env.JWT_SECRET ?? "ini-rahasia");
+        const token = sign(
+            { id: user.id, email: user.email, name: user.name, level: user.level },
+            process.env.JWT_SECRET ?? "ini-rahasia",
+            { expiresIn: "1h" }
+        );
+
+        let redirectUrl = "/";
+        if (user.level === "admin") {
+            redirectUrl = "/admin/dashboard";
+        } else if (user.level === "sales") {
+            redirectUrl = "/sales/pendapatan";
+        } else if (user.level === "customer") {
+            redirectUrl = "/customers/tampilan";
+        }
         // const token = jwt.sign(
         //     {id: user.id, email: user.email},
         //     process.env.JWT_SECRET!,
         //     {expriresIn: '1h'}
         // );
 
+        // buat headers set-Cookies
+        const headers = new Headers();
+        headers.append(
+            "set-Cookie",
+            `token=${token}; Path=/; SameSite=Lax; Max-Age3600`
+        )
+        
+
         return new Response(JSON.stringify({
             statusCode: 200,
             msg: "Login succesful",
-            data: { id:user.id, email:user.email, token: token}
-        }),{status: 200});
+            data: { id: user.id, email: user.email, name: user.name, level: user.level, token, redirectUrl }
+        }), { status: 200, headers });
 
     } catch (error) {
         console.error(error);
         return new Response(JSON.stringify({
             statusCode: 500,
             msg: "Server Error" + error
-        }),{status: 500});
+        }), { status: 500 });
     }
 }

@@ -1,23 +1,56 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
+import { jwtVerify } from "jose";
+import cookie from "cookie";
 
-import jwt from 'jsonwebtoken';
+const allowedPathByRole: { [key: string]: string[] } = {
+    admin: ["/admin/dashboard", "/admin/rekap"],
+    sales: ["/sales/pengeluaran", "/sales/pendapatan"],
+    customer: ["/customers/tampilan", "/customers/pesanan"],
+};
 
-export function middleware(req: Request) {
-    const token = req.headers.get('authorization')?.split(' ')[1];
+const secret = new TextEncoder().encode(process.env.JWT_SECRET || "ini-rahasia");
+
+export async function middleware(req: Request) {
+    const cookies = req.headers.get("cookie");
+    const parsedCookies = cookie.parse(cookies || "");
+    const token = parsedCookies.token;
+
+    console.log("Cookies:", parsedCookies);
+
     if (!token) {
-        return NextResponse.redirect(new URL('/auth/signin', req.url)); // Redirect jika tidak ada token
+        console.warn("Token tidak ditemukan. Redirect ke /auth/signin");
+        return NextResponse.redirect(new URL("/auth/signin", req.url));
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!); // Verifikasi token
-        (req as any).user = decoded; // Tambahkan data pengguna ke request
-    } catch (err) {
-        return NextResponse.redirect(new URL('/auth/signin', req.url)); // Redirect jika token tidak valid
-    }
+        // Verifikasi token menggunakan jose
+        const { payload } = await jwtVerify(token, secret);
+        const user = payload as { id: string; level: string };
+        const currentPath = new URL(req.url).pathname;
 
-    return NextResponse.next(); // Lanjutkan ke rute berikutnya
+        console.log("Decoded Token:", user);
+        console.log("Current Path:", currentPath);
+
+        const allowedPaths = allowedPathByRole[user.level] || [];
+        const isPathAllowed = allowedPaths.some((allowedPath) =>
+            currentPath.startsWith(allowedPath)
+        );
+
+        console.log("Allowed Paths:", allowedPaths);
+        console.log("Is Path Allowed:", isPathAllowed);
+
+        if (!isPathAllowed) {
+            console.warn("Path tidak diizinkan. Redirect ke /403");
+            return NextResponse.redirect(new URL("/403", req.url));
+        }
+
+        return NextResponse.next();
+    } catch (err) {
+        console.error("Token tidak valid:", err);
+        return NextResponse.redirect(new URL("/auth/signin", req.url));
+    }
 }
 
 export const config = {
-    matcher: ['/protected/:path*'], // Proteksi halaman yang diawali dengan /protected/
+    matcher: ["/admin/:path*", "/sales/:path*", "/customers/:path*"],
 };
