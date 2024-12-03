@@ -11,12 +11,15 @@ type PengeluaranItem = {
   tanggal: string;
 };
 
+const ITEMS_PER_PAGE = 10;
+
 const Pengeluaran: React.FC = () => {
   const [jenis_pengeluaran, setJenis_pengeluaran] = useState("");
   const [ket, setKet] = useState("");
   const [biaya, setBiaya] = useState("");
   const [tanggal, setTanggal] = useState("");
   const [items, setItems] = useState<PengeluaranItem[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // -------------------------- MENAMPILKAN DATA -------------------------------
   useEffect(() => {
@@ -81,7 +84,17 @@ const Pengeluaran: React.FC = () => {
 
   // -------------------------- END DELETE DATA PENGELUARAN -------------------------------
 
+  // ----------------------------- PAGINATION ---------------------------------
+  const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE);
+  const startIdex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentItems = items.slice(startIdex, startIdex + ITEMS_PER_PAGE);
 
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  }
+  // ----------------------------- END PAGINATION ---------------------------------
 
   return (
     <div className="flex flex-row gap-9">
@@ -181,7 +194,7 @@ const Pengeluaran: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {items.map((item, index) => (
+              {currentItems.map((item, index) => (
                 <tr key={item.id}>
                   <td className="p-4 border">{index + 1}</td>
                   <td className="p-4 border">
@@ -215,6 +228,41 @@ const Pengeluaran: React.FC = () => {
               ))}
             </tbody>
           </table>
+          {/* Pagination */}
+          <div className="flex justify-center mt-6">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={`px-4 py-2 mx-1 border rounded ${currentPage === 1
+                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                : "bg-white text-gray-800"
+                }`}
+            >
+              Previous
+            </button>
+            {Array.from({ length: totalPages }, (_, index) => (
+              <button
+                key={index + 1}
+                onClick={() => handlePageChange(index + 1)}
+                className={`px-4 py-2 mx-1 border rounded ${currentPage === index + 1
+                  ? "bg-blue-500 text-white"
+                  : "bg-white text-gray-800"
+                  }`}
+              >
+                {index + 1}
+              </button>
+            ))}
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={`px-4 py-2 mx-1 border rounded ${currentPage === totalPages
+                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                : "bg-white text-gray-800"
+                }`}
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
     </div>

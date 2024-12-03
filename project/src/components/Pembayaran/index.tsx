@@ -21,10 +21,13 @@ type Pesanan = {
   };
 };
 
+const ITEMS_PER_PAGE = 10;
+
 const PemesananB = () => {
   const [items, setItems] = useState<Pesanan[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const itemData = async () => {
@@ -56,6 +59,18 @@ const PemesananB = () => {
     setImageSrc(null);
   };
 
+  // ----------------------------- PAGINATION ---------------------------------
+  const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE);
+  const startIdex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentItems = items.slice(startIdex, startIdex + ITEMS_PER_PAGE);
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  }
+  // ----------------------------- END PAGINATION ---------------------------------
+
   return (
     <div className="flex flex-col gap-9">
       <div className="rounded-sm border border-stroke bg-white px-5 pb-6 pt-6 shadow-default">
@@ -75,7 +90,7 @@ const PemesananB = () => {
             </tr>
           </thead>
           <tbody className="text-black">
-            {items.map((item, index) => (
+            {currentItems.map((item, index) => (
               <tr key={item.id}>
                 <td className="p-4 text-center border-b border-stroke">{index + 1}</td>
                 <td className="p-4 text-center border-b border-stroke">
@@ -103,8 +118,8 @@ const PemesananB = () => {
                 </td> */}
                 <td>
                   <div className={`text-center border-b border-stroke ${item.status.includes("/upload")
-                      ? "bg-green-600 text-white font-semibold rounded-full text-sm px-2 py-0.5"
-                      : "bg-gray-400 text-white font-semibold rounded-full text-sm px-2 py-0.5"
+                    ? "bg-green-600 text-white font-semibold rounded-full text-sm px-2 py-0.5"
+                    : "bg-gray-400 text-white font-semibold rounded-full text-sm px-2 py-0.5"
                     }`}
                     onClick={() => handleStatusClick(item)}>
                     {item.status.includes("/upload") ? "Sudah Bayar" : "Belum Bayar"}
@@ -114,6 +129,41 @@ const PemesananB = () => {
             ))}
           </tbody>
         </table>
+        {/* Pagination */}
+        <div className="flex justify-center mt-6">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className={`px-4 py-2 mx-1 border rounded ${currentPage === 1
+              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+              : "bg-white text-gray-800"
+              }`}
+          >
+            Previous
+          </button>
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button
+              key={index + 1}
+              onClick={() => handlePageChange(index + 1)}
+              className={`px-4 py-2 mx-1 border rounded ${currentPage === index + 1
+                ? "bg-blue-500 text-white"
+                : "bg-white text-gray-800"
+                }`}
+            >
+              {index + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className={`px-4 py-2 mx-1 border rounded ${currentPage === totalPages
+              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+              : "bg-white text-gray-800"
+              }`}
+          >
+            Next
+          </button>
+        </div>
       </div>
 
       {/* Modal */}

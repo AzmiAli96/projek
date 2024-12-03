@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import jwt from "jsonwebtoken";
 import toast from "react-hot-toast";
 
 
@@ -19,26 +20,54 @@ type Pesanan = {
   }
 };
 
+const ITEMS_PER_PAGE = 10;
+
 const Pesanan = () => {
   const [items, setItems] = useState<Pesanan[]>([]);
   const [selectedItem, setSelectedItem] = useState<Pesanan | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const [userId, setUserId] = useState<number | null>(null);
 
   useEffect(() => {
-    const itemData = async () => {
+    // Decode token untuk mendapatkan id_user
+    const token = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("token="))
+      ?.split("=")[1];
+
+    if (token) {
+      try {
+        const decoded = jwt.decode(token) as { id: number };
+        setUserId(decoded.id); // Simpan id_user dari token
+      } catch (error) {
+        console.error("Invalid token:", error);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchPesanan = async () => {
       try {
         const response = await axios.get("/api/pemesanan");
-        setItems(response.data.data);
+        const allPesanan = response.data.data as Pesanan[];
 
-        console.log(response.data.data);
-
+        if (userId) {
+          // Filter pesanan hanya untuk id_user saat ini
+          const userPesanan = allPesanan.filter((item) => item.id_user === userId);
+          setItems(userPesanan);
+        }
       } catch (error) {
-        console.log("Gagal mengambil data pesanan");
+        console.error("Gagal mengambil data pesanan:", error);
       }
     };
-    itemData();
-  }, []);
+
+    if (userId) {
+      fetchPesanan();
+    }
+  }, [userId]);
 
   const totalHarga = (item: Pesanan) => {
     return item.barang.harga * item.jumlah_beli;
@@ -69,7 +98,7 @@ const Pesanan = () => {
       });
 
       console.log("Response from backend:", response.data);
-      
+
 
       const imagePath = response.data.data;
 
@@ -89,7 +118,7 @@ const Pesanan = () => {
     } catch (error: any) {
       // Tangani error yang terjadi selama upload
       console.error("Error uploading image:", error);
-      
+
 
       if (axios.isAxiosError(error)) {
         // alert(`Gagal mengunggah gambar: ${error.response?.data?.error || "Coba lagi."}`);
@@ -101,6 +130,17 @@ const Pesanan = () => {
     }
   };
 
+  // ----------------------------- PAGINATION ---------------------------------
+  const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE);
+  const startIdex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentItems = items.slice(startIdex, startIdex + ITEMS_PER_PAGE);
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  }
+  // ----------------------------- END PAGINATION --------------------------------- 
 
   return (
     <div className="flex flex-row gap-9">
@@ -123,8 +163,8 @@ const Pesanan = () => {
             </tr>
           </thead>
           <tbody className="text-black">
-            {items.map((item, index) => (
-              <tr key={index}>
+            {currentItems.map((item, index) => (
+              <tr key={item.id}>
                 <td className="p-4 text-center border-b border-stroke">{index + 1}</td>
                 <td className="p-4 text-center border-b border-stroke">
                   {new Date(item.tanggal).toLocaleDateString("id-ID", { day: "2-digit", month: "long" })}
@@ -148,8 +188,8 @@ const Pesanan = () => {
                 </td> */}
                 <td>
                   <div className={`text-center border-b border-stroke ${item.status.includes("/upload")
-                      ? "bg-green-600 text-white font-semibold rounded-full text-sm px-2 py-0.5"
-                      : "bg-gray-400 text-white font-semibold rounded-full text-sm px-2 py-0.5"
+                    ? "bg-green-600 text-white font-semibold rounded-full text-sm px-2 py-0.5"
+                    : "bg-gray-400 text-white font-semibold rounded-full text-sm px-2 py-0.5"
                     }`}>
                     {item.status.includes("/upload") ? "Sudah Bayar" : "Belum Bayar"}
                   </div>
@@ -170,6 +210,41 @@ const Pesanan = () => {
             ))}
           </tbody>
         </table>
+        {/* Pagination */}
+        <div className="flex justify-center mt-6">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className={`px-4 py-2 mx-1 border rounded ${currentPage === 1
+              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+              : "bg-white text-gray-800"
+              }`}
+          >
+            Previous
+          </button>
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button
+              key={index + 1}
+              onClick={() => handlePageChange(index + 1)}
+              className={`px-4 py-2 mx-1 border rounded ${currentPage === index + 1
+                ? "bg-blue-500 text-white"
+                : "bg-white text-gray-800"
+                }`}
+            >
+              {index + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className={`px-4 py-2 mx-1 border rounded ${currentPage === totalPages
+              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+              : "bg-white text-gray-800"
+              }`}
+          >
+            Next
+          </button>
+        </div>
       </div>
 
       {showModal && (
