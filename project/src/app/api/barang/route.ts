@@ -6,7 +6,7 @@ export async function GET() {
     try {
         const items = await prisma.barang.findMany({
             orderBy:{
-                id: "asc"
+                id: "desc"
             }
         });
        return Response.json({
