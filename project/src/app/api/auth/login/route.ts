@@ -21,8 +21,8 @@ export async function POST(req: Request) {
             }), { status: 400 });
         }
 
-        // const isPasswordValid = await bcrypt.compare(password, user.password);
-        const isPasswordValid = password === user.password;
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        // const isPasswordValid = password === user.password;
         if (!isPasswordValid) {
             return new Response(JSON.stringify({
                 statusCode: 400,

@@ -71,6 +71,10 @@ const Pemesanan: React.FC = () => {
 
   // Handle form submit
   const handleSubmit = async () => {
+    if (barang && quantity > barang.jumlah) {
+      toast.error("Jumlah pesanan melebihi stok yang tersedia.");
+      return;
+    }
 
     try {
       const response = await axios.post(
@@ -100,7 +104,12 @@ const Pemesanan: React.FC = () => {
     }
   };
 
-  const increaseQuantity = () => setQuantity(quantity + 1);
+  const increaseQuantity = () => {
+    if (barang && quantity < barang.jumlah) {
+      setQuantity((prev) => prev + 1);
+    }
+  };
+
   const decreaseQuantity = () => setQuantity(quantity > 1 ? quantity - 1 : 1);
 
   const totalPrice = barang ? barang.harga * quantity : 0;
@@ -169,13 +178,34 @@ const Pemesanan: React.FC = () => {
           </table>
 
           <div className="flex justify-end mt-6">
-            <button onClick={handleSubmit} className="bg-green-500 text-white py-2 px-4 rounded-md" >
-              Pesan
-            </button>
+            {barang.jumlah === 0 ? (
+              <button
+                disabled
+                className="bg-gray-400 text-white py-2 px-4 rounded-md cursor-not-allowed"
+              >
+                Habis
+              </button>
+            ) : (
+              <button
+                onClick={handleSubmit}
+                className={`bg-green-500 text-white py-2 px-4 rounded-md ${quantity > barang.jumlah ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                disabled={quantity > barang.jumlah}
+              >
+                Pesan
+              </button>
+            )}
           </div>
         </div>
       </div>
-        <h4 className='max-w-[200px] text-wrap'>{barang.ket}</h4>
+      <div className="rounded-sm border border-stroke bg-white shadow-md dark:border-strokedark dark:bg-boxdark p-4 mt-6">
+        <h4 className="font-semibold mb-2">Keterangan:</h4>
+        <ul className="list-disc pl-6 text-gray-700">
+          {barang.ket.split(",").map((point, index) => (
+            <li key={index}>{point.trim()}</li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };

@@ -54,6 +54,7 @@ export async function POST(req: Request) {
             }
         });
 
+        // mengurangkan jumlah stock sesuai dengan yang dipesan
         const decreementBarang = await prisma.barang.update({
             where: { id: newItem.id_barang },
             data: {
