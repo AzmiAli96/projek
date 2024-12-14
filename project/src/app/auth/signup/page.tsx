@@ -3,14 +3,17 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const SignUp: React.FC = () => {
+  const router = useRouter()
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     retypePassword: "",
     nohp: "",
+    alamat: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -30,8 +33,8 @@ const SignUp: React.FC = () => {
     setError("");
     setSuccess("");
 
-    const { name, email, password, retypePassword, nohp } = formData;
-    if (!name || !email || !password || !retypePassword || !nohp) {
+    const { name, email, password, retypePassword, nohp, alamat } = formData;
+    if (!name || !email || !password || !retypePassword || !nohp || !alamat) {
       setError("Semua field harus diisi.");
       setLoading(false);
       return;
@@ -56,7 +59,10 @@ const SignUp: React.FC = () => {
         throw new Error(data.msg || "pendaftaran gagal")
       }
       setSuccess("Pendaftaran berhasil. Silakan login.");
-      setFormData({ name: "", email: "", password: "", retypePassword: "", nohp: "" });
+      setFormData({ name: "", email: "", password: "", retypePassword: "", nohp: "", alamat: "" });
+      setTimeout(() => {
+        router.push("/auth/signin");
+      }, 2000);
     } catch (error: any) {
       setError(error.message || "Gagal terhubung ke server");
     } finally {
@@ -255,13 +261,13 @@ const SignUp: React.FC = () => {
                 </label>
                 <div className="relative">
                   <input
-                    id="noho"
+                    id="nohp"
                     name="nohp"
                     value={formData.nohp}
                     onChange={handleChange}
                     required
                     type="number"
-                    placeholder="Enter your full name"
+                    placeholder="Enter your contact"
                     className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   />
 
@@ -278,6 +284,32 @@ const SignUp: React.FC = () => {
                         stroke-linejoin="round"
                         d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
                     </svg>
+
+                  </span>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="mb-2.5 block font-medium text-black dark:text-white">
+                  Alamat
+                </label>
+                <div className="relative">
+                  <input
+                    id="alamat"
+                    name="alamat"
+                    value={formData.alamat}
+                    onChange={handleChange}
+                    required
+                    type="text"
+                    placeholder="Enter your adress"
+                    className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  />
+
+                  <span className="absolute right-4 top-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+</svg>
+
 
                   </span>
                 </div>

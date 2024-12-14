@@ -3,7 +3,7 @@ import { jwtVerify } from "jose";
 import cookie from "cookie";
 
 const allowedPathByRole: { [key: string]: string[] } = {
-    admin: ["/admin/dashboard", "/admin/rekap"],
+    admin: ["/admin/dashboard", "/admin/rekap", "/admin/user"],
     sales: ["/sales/pengeluaran", "/sales/pendapatan"],
     customer: ["/customers/tampilan", "/customers/pesanan"],
 };

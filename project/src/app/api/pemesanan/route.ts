@@ -29,6 +29,7 @@ type pembelian = {
     tanggal: Date
     jumlah_beli: number
     status: string,
+    keputusan: string,
     barang: {
         kode_barang: string,
         nama_barang: string,
@@ -50,7 +51,8 @@ export async function POST(req: Request) {
                 id_barang: Number(body.id_barang),
                 tanggal: new Date(body.tanggal),
                 jumlah_beli: Number(body.jumlah_beli),
-                status: body.status
+                status: body.status,
+                keputusan: body.keputusan
             }
         });
 

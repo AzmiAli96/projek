@@ -1,24 +1,16 @@
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import Image from "next/image";
-import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: "Next.js Profile | TailAdmin - Next.js Dashboard Template",
-  description:
-    "This is Next.js Profile page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template",
-};
 
 const Profile = () => {
   return (
     <DefaultLayout>
       <div className="mx-auto max-w-242.5">
-        <Breadcrumb pageName="Profile" />
-
         <div className="overflow-hidden rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
           <div className="relative z-20 h-35 md:h-65">
-            <Image
+            {/* <Image
               src={"/images/cover/cover-01.png"}
               alt="profile cover"
               className="h-full w-full rounded-tl-sm rounded-tr-sm object-cover object-center"
@@ -28,9 +20,9 @@ const Profile = () => {
                 width: "auto",
                 height: "auto",
               }}
-            />
-            <div className="absolute bottom-1 right-1 z-10 xsm:bottom-4 xsm:right-4">
-              <label
+            /> */}
+            {/* <div className="absolute bottom-1 right-1 z-10 xsm:bottom-4 xsm:right-4"> */}
+              {/* <label
                 htmlFor="cover"
                 className="flex cursor-pointer items-center justify-center gap-2 rounded bg-primary px-2 py-1 text-sm font-medium text-white hover:bg-opacity-80 xsm:px-4"
               >
@@ -64,9 +56,10 @@ const Profile = () => {
                   </svg>
                 </span>
                 <span>Edit</span>
-              </label>
-            </div>
+              </label> */}
+            {/* </div> */}
           </div>
+          {/* gambar user */}
           <div className="px-4 pb-6 text-center lg:pb-8 xl:pb-11.5">
             <div className="relative z-30 mx-auto -mt-22 h-30 w-full max-w-30 rounded-full bg-white/20 p-1 backdrop-blur sm:h-44 sm:max-w-44 sm:p-3">
               <div className="relative drop-shadow-2">
@@ -80,6 +73,7 @@ const Profile = () => {
                   }}
                   alt="profile"
                 />
+                {/* edit camera */}
                 <label
                   htmlFor="profile"
                   className="absolute bottom-0 right-0 flex h-8.5 w-8.5 cursor-pointer items-center justify-center rounded-full bg-primary text-white hover:bg-opacity-90 sm:bottom-2 sm:right-2"

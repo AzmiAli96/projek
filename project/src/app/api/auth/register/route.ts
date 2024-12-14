@@ -6,15 +6,16 @@ const prisma = new PrismaClient();
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { name, email, password, level, nohp } = body as {
+        const { name, email, password, level, nohp, alamat } = body as {
             name: string;
             email: string;
             password: string;
             level: string;
             nohp: string;
+            alamat: string;
         }
 
-        if (!name || !email || !password || !level || !nohp) {
+        if (!name || !email || !password || !level || !nohp || !alamat) {
             return new Response(JSON.stringify({
                 satatusCode: 400,
                 msg: "All field are required"
@@ -43,6 +44,7 @@ export async function POST(req: Request) {
                 password: hashedPassword,
                 level,
                 nohp,
+                alamat
             },
         });
 
