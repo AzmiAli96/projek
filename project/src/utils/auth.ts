@@ -6,7 +6,7 @@ export const getUserInfo = () => {
   if (!token) return null;
   try {
     const payload = decode(token);
-    return payload as {id:number, email: string, name: string, level:string};
+    return payload as {id:number, email: string, name: string, level:string, alamat:string, nohp:string, image:string};
   } catch (err) {
     console.error("Invalid token");
     return null;

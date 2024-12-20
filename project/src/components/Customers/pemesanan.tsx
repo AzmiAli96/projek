@@ -15,6 +15,7 @@ type Barang = {
   image: string;
 };
 
+
 const Pemesanan: React.FC = () => {
   const { id } = useParams(); // Ambil parameter id dari URL
 
@@ -29,7 +30,11 @@ const Pemesanan: React.FC = () => {
   const [tanggal, setTanggal] = useState<string>("");
   const [jumlah_beli, setJumlahBeli] = useState<number>(1); // Set default ke tipe number
   const [status, setStatus] = useState<string>("belum bayar");
+  const [keputusan, setKeputusan] = useState<string>("dalam proses");
   const [items, setItems] = useState<any[]>([]);
+
+  // State unutk cart
+  const [jumlah_cart, setJumlahCart] = useState<number>(1);
 
   // Fetch data barang berdasarkan ID
   useEffect(() => {
@@ -85,6 +90,7 @@ const Pemesanan: React.FC = () => {
           tanggal,
           jumlah_beli: quantity,
           status,
+          keputusan,
         },
         {
           headers: { "Content-Type": "application/json" },
@@ -103,6 +109,28 @@ const Pemesanan: React.FC = () => {
       toast.error("Gagal melakukan pemesan. Silahkan coba lagi")
     }
   };
+
+  const handleCart = async () => {
+    const requestData = {
+      id_user: getUserInfo()?.id,
+      id_barang,
+      jumlah_cart: quantity,
+    };
+
+    console.log("Request Data:", requestData);
+
+    try {
+      const response = await axios.post("/api/cart", requestData, {
+        headers: { "Content-Type": "application/json" },
+      });
+      toast.success("Pemesanan Berhasil Ditambahkan Di Cart Anda");
+      console.log("Response:", response.data);
+    } catch (error) {
+      console.error("Error Response:", error);
+      toast.error("Gagal melakukan penambahan cart. Silahkan coba lagi");
+    }
+  };
+
 
   const increaseQuantity = () => {
     if (barang && quantity < barang.jumlah) {
@@ -176,8 +204,7 @@ const Pemesanan: React.FC = () => {
               </tr>
             </tbody>
           </table>
-
-          <div className="flex justify-end mt-6">
+          <div className="flex justify-end items-center gap-4 mt-6">
             {barang.jumlah === 0 ? (
               <button
                 disabled
@@ -186,16 +213,30 @@ const Pemesanan: React.FC = () => {
                 Habis
               </button>
             ) : (
-              <button
-                onClick={handleSubmit}
-                className={`bg-green-500 text-white py-2 px-4 rounded-md ${quantity > barang.jumlah ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
-                disabled={quantity > barang.jumlah}
-              >
-                Pesan
-              </button>
+              <>
+                <button
+                  onClick={handleCart}
+                  className={`bg-blue-500 text-white py-2 px-4 rounded-md ${quantity > barang.jumlah ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                  disabled={quantity > barang.jumlah}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                  </svg>
+
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  className={`bg-green-500 text-white py-2 px-4 rounded-md ${quantity > barang.jumlah ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                  disabled={quantity > barang.jumlah}
+                >
+                  Pesan
+                </button>
+              </>
             )}
           </div>
+
         </div>
       </div>
       <div className="rounded-sm border border-stroke bg-white shadow-md dark:border-strokedark dark:bg-boxdark p-4 mt-6">

@@ -13,6 +13,7 @@ type Pesanan = {
   tanggal: Date;
   jumlah_beli: number;
   status: string;
+  keputusan: string;
   barang: {
     kode_barang: string,
     nama_barang: string,
@@ -159,6 +160,7 @@ const Pesanan = () => {
               <td className="w-3/12 p-4 text-center border-b border-stroke">Jumlah Beli</td>
               <td className="w-2/12 p-4 text-center border-b border-stroke">Harga</td>
               <td className="w-2/12 p-4 text-center border-b border-stroke">Status</td>
+              <td className="w-2/12 p-4 text-center border-b border-stroke">Keputusan</td>
               <td className="w-2/12 p-4 text-center border-b border-stroke">Action</td>
             </tr>
           </thead>
@@ -195,7 +197,22 @@ const Pesanan = () => {
                   </div>
                 </td>
 
-
+                <td className="text-center border-b border-stroke">
+                  <div
+                    className={`text-center cursor-pointer text-white font-semibold rounded-full text-sm px-2 py-0.5
+      ${item.keputusan === "dalam proses"
+                        ? "bg-gray-400"
+                        : item.keputusan === "Tolak"
+                          ? "bg-red-500"
+                          : item.keputusan === "Terima"
+                            ? "bg-green-600"
+                            : "bg-gray-200" // Default jika keputusan tidak sesuai
+                      }
+    `}
+                  >
+                    {item.keputusan || "Belum Ada Keputusan"}
+                  </div>
+                </td>
 
 
                 <td className="p-4 text-center border-b border-stroke">

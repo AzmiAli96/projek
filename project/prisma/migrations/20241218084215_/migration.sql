@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Pembelian" ALTER COLUMN "tanggal" SET DEFAULT CURRENT_TIMESTAMP;

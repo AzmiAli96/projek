@@ -422,7 +422,7 @@ const Barang: React.FC = () => {
                     <td className="p-4 text-center border-b border-stroke">{index + 1}</td>
                     <td className="p-4 text-center border-b border-stroke">{item.kode_barang}</td>
                     <td className="p-4 text-center border-b border-stroke">{item.nama_barang}</td>
-                    <td className="p-4 text-center border-b border-stroke">{item.ket}</td>
+                    <td className="p-4 text-center border-b border-stroke overflow-hidden whitespace-nowrap text-ellipsis">{item.ket}</td>
                     <td className="p-4 text-center border-b border-stroke">{item.harga}</td>
                     <td className="p-4 text-center border-b border-stroke">{item.jumlah}</td>
                     <td className="p-4 text-center border-b border-stroke">
@@ -469,40 +469,40 @@ const Barang: React.FC = () => {
               </tbody>
             </table>
             {/* Pagination */}
-        <div className="flex justify-center mt-6">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className={`px-4 py-2 mx-1 border rounded ${currentPage === 1
-              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-              : "bg-white text-gray-800"
-              }`}
-          >
-            Previous
-          </button>
-          {Array.from({ length: totalPages }, (_, index) => (
-            <button
-              key={index + 1}
-              onClick={() => handlePageChange(index + 1)}
-              className={`px-4 py-2 mx-1 border rounded ${currentPage === index + 1
-                ? "bg-blue-500 text-white"
-                : "bg-white text-gray-800"
-                }`}
-            >
-              {index + 1}
-            </button>
-          ))}
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className={`px-4 py-2 mx-1 border rounded ${currentPage === totalPages
-              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-              : "bg-white text-gray-800"
-              }`}
-          >
-            Next
-          </button>
-        </div>
+            <div className="flex justify-center mt-6">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`px-4 py-2 mx-1 border rounded ${currentPage === 1
+                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                  : "bg-white text-gray-800"
+                  }`}
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, index) => (
+                <button
+                  key={index + 1}
+                  onClick={() => handlePageChange(index + 1)}
+                  className={`px-4 py-2 mx-1 border rounded ${currentPage === index + 1
+                    ? "bg-blue-500 text-white"
+                    : "bg-white text-gray-800"
+                    }`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`px-4 py-2 mx-1 border rounded ${currentPage === totalPages
+                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                  : "bg-white text-gray-800"
+                  }`}
+              >
+                Next
+              </button>
+            </div>
           </div>
           {showModal && (
             <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">

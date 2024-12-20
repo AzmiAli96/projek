@@ -18,6 +18,7 @@ type Pembelian = {
   tanggal: string; // Format tanggal sebagai string
   jumlah_beli: number;
   status: string;
+  keputusan: string;
   barang: {
     kode_barang: string;
     nama_barang: string;
@@ -104,7 +105,10 @@ const Rekap = () => {
         }
 
         const penghasilan = (Number(item.barang?.harga) || 0) * (Number(item.jumlah_beli) || 0);
-        const hutang = item.status.includes("/upload") ? 0 : penghasilan;
+        const hutang =
+          item.keputusan === "Tolak" || item.keputusan === "dalam proses"
+            ? penghasilan
+            : 0;
 
         dataByDate[item.tanggal].totalPenghasilanKotor += penghasilan;
         dataByDate[item.tanggal].totalHutang += hutang;

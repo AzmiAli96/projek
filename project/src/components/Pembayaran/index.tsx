@@ -10,6 +10,7 @@ type Pesanan = {
   tanggal: Date;
   jumlah_beli: number;
   status: string;
+  keputusan: string;
   barang: {
     kode_barang: string;
     nama_barang: string;
@@ -27,6 +28,7 @@ const PemesananB = () => {
   const [items, setItems] = useState<Pesanan[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<Pesanan | null>(null); // Item yang dipilih
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -47,28 +49,46 @@ const PemesananB = () => {
   };
 
   const handleStatusClick = (item: Pesanan) => {
-    console.log('Status Clicked:', item.status);
+    console.log("Status Clicked:", item.status);
     if (item.status.includes("/upload")) {
-      setImageSrc(item.status); // Atur sumber gambar dari item
-      setShowModal(true); // Tampilkan modal
+      setImageSrc(item.status);
+      setSelectedItem(item); // Set item aktif di modal
+      setShowModal(true);
     }
   };
 
   const closeModal = () => {
     setShowModal(false);
     setImageSrc(null);
+    setSelectedItem(null);
+  };
+
+  const handleKeputusan = async (keputusan: string) => {
+    if (!selectedItem) return;
+
+    try {
+      await axios.patch(`/api/pemesanan/${selectedItem.id}`, { keputusan }); // Update keputusan
+      setItems((prevItems) =>
+        prevItems.map((item) =>
+          item.id === selectedItem.id ? { ...item, keputusan } : item
+        )
+      );
+      closeModal(); // Tutup modal setelah update
+    } catch (error) {
+      console.error("Gagal memperbarui keputusan", error);
+    }
   };
 
   // ----------------------------- PAGINATION ---------------------------------
   const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE);
-  const startIdex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentItems = items.slice(startIdex, startIdex + ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentItems = items.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
     }
-  }
+  };
   // ----------------------------- END PAGINATION ---------------------------------
 
   return (
@@ -87,17 +107,19 @@ const PemesananB = () => {
               <td className="p-4 text-center border-b border-stroke">Jumlah</td>
               <td className="p-4 text-center border-b border-stroke">Harga</td>
               <td className="p-4 text-center border-b border-stroke">Status</td>
+              <td className="p-4 text-center border-b border-stroke">Keputusan</td>
             </tr>
           </thead>
           <tbody className="text-black">
             {currentItems.map((item, index) => (
               <tr key={item.id}>
                 <td className="p-4 text-center border-b border-stroke">{index + 1}</td>
+                <td className="p-4 text-center border-b border-stroke">{item.user.name}</td>
                 <td className="p-4 text-center border-b border-stroke">
-                  {item.user.name}
-                </td>
-                <td className="p-4 text-center border-b border-stroke">
-                  {new Date(item.tanggal).toLocaleDateString("id-ID", { day: "2-digit", month: "long" })}
+                  {new Date(item.tanggal).toLocaleDateString("id-ID", {
+                    day: "2-digit",
+                    month: "long",
+                  })}
                 </td>
                 <td className="p-4 text-center border-b border-stroke">{item.barang.kode_barang}</td>
                 <td className="p-4 text-center border-b border-stroke">{item.barang.nama_barang}</td>
@@ -105,106 +127,70 @@ const PemesananB = () => {
                 <td className="p-4 text-center border-b border-stroke">
                   {totalHarga(item).toLocaleString()}
                 </td>
-                {/* <td>
+                <td>
                   <div
-                    className={`text-center cursor-pointer ${item.status.toLowerCase() === "sudah bayar"
-                      ? "bg-green-600 text-white rounded-full text-sm px-4 py-1"
-                      : "bg-gray-400 text-white rounded-full text-sm px-4 py-1"
-                      }`}
+                    className={`text-center cursor-pointer ${item.status.includes("/upload")
+                      ? "bg-green-600"
+                      : "bg-gray-400"
+                      } text-white font-semibold rounded-full text-sm px-2 py-0.5`}
                     onClick={() => handleStatusClick(item)}
                   >
-                    {item.status.toUpperCase()}
-                  </div>
-                </td> */}
-                <td>
-                  <div className={`text-center border-b border-stroke ${item.status.includes("/upload")
-                    ? "bg-green-600 text-white font-semibold rounded-full text-sm px-2 py-0.5"
-                    : "bg-gray-400 text-white font-semibold rounded-full text-sm px-2 py-0.5"
-                    }`}
-                    onClick={() => handleStatusClick(item)}>
                     {item.status.includes("/upload") ? "Sudah Bayar" : "Belum Bayar"}
+                  </div>
+                </td>
+                <td className="text-center border-b border-stroke">
+                  <div
+                    className={`text-center cursor-pointer text-white font-semibold rounded-full text-sm px-2 py-0.5
+      ${item.keputusan === "dalam proses"
+                        ? "bg-gray-400"
+                        : item.keputusan === "Tolak"
+                          ? "bg-red-500"
+                          : item.keputusan === "Terima"
+                            ? "bg-green-600"
+                            : "bg-gray-200" // Default jika keputusan tidak sesuai
+                      }
+    `}
+                  >
+                    {item.keputusan || "Belum Ada Keputusan"}
                   </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        {/* Pagination */}
-        <div className="flex justify-center mt-6">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className={`px-4 py-2 mx-1 border rounded ${currentPage === 1
-              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-              : "bg-white text-gray-800"
-              }`}
-          >
-            Previous
-          </button>
-          {Array.from({ length: totalPages }, (_, index) => (
-            <button
-              key={index + 1}
-              onClick={() => handlePageChange(index + 1)}
-              className={`px-4 py-2 mx-1 border rounded ${currentPage === index + 1
-                ? "bg-blue-500 text-white"
-                : "bg-white text-gray-800"
-                }`}
-            >
-              {index + 1}
-            </button>
-          ))}
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className={`px-4 py-2 mx-1 border rounded ${currentPage === totalPages
-              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-              : "bg-white text-gray-800"
-              }`}
-          >
-            Next
-          </button>
-        </div>
       </div>
 
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="relative bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-md">
-            {/* Close Button */}
             <button
               className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
               onClick={closeModal}
             >
               ✕
             </button>
-            {/* Display Image */}
-            {/* {imageSrc ? (
+            {imageSrc && (
               <img
                 src={imageSrc}
-                alt="Bukti Pembayaran"
-                className="w-40 h-40 object-cover mx-auto rounded"
+                alt="Preview"
+                className="w-full h-auto object-contain mx-auto mb-4"
               />
-            ) : (
-              <p className="text-center text-gray-700 font-medium">Tidak ada gambar</p>
-            )} */}
-            {imageSrc ? (
-              <div>
-                <img
-                  src={imageSrc}
-                  alt="Preview"
-                  className="w-full h-auto object-contain mx-auto"
-                />
-              </div>
-            ) : (
-              <p className="text-center text-gray-700 font-medium">Tidak ada gambar</p>
             )}
-            {/* Close Button */}
+            <div className="flex gap-2">
             <button
-              className="mt-6 w-full px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
-              onClick={closeModal}
+              className="w-full px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
+              onClick={() => handleKeputusan("Tolak")}
             >
-              Tutup
+              Tolak
             </button>
+            <button
+              className="w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
+              onClick={() => handleKeputusan("Terima")}
+            >
+              Terima
+            </button>
+            </div>
           </div>
         </div>
       )}

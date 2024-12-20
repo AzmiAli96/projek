@@ -1,17 +1,68 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import ClickOutside from "@/components/ClickOutside";
 import { getUserInfo } from "@/utils/auth";
 import { logout } from "@/utils/auth";
+import jwt from "jsonwebtoken";
+import axios from "axios";
+
+type User = {
+  id: number;
+  name: string;
+  level: string;
+  image: string;
+};
+
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [userId, setUserId] = useState<number | null>(null);
 
+  useEffect(() => {
+      // Ambil token dari cookie
+      const token = document.cookie
+        .split(";")
+        .find((row) => row.trim().startsWith("token="))
+        ?.split("=")[1];
   
+      if (token) {
+        try {
+          const decoded = jwt.decode(token) as { id: number }; // Adjusted type
+          setUserId(decoded.id);
+        } catch (error) {
+          console.error("Invalid token:", error);
+        }
+      }
+    }, []);
+
+    useEffect(() => {
+      // Fetch user data by ID
+      const fetchUserData = async () => {
+        try {
+          if (userId) {
+            const response = await axios.get(`/api/user`);
+            const userData = response.data.data;
+            const currentUser = userData.find((u: User) => u.id === userId);
+  
+            setUser(currentUser || null);
+          }
+        } catch (error) {
+          console.error("Gagal mengambil data user", error);
+        }
+      };
+  
+      if (userId) {
+        fetchUserData();
+      }
+    }, [userId]);
+  
+
 
   const nama = getUserInfo()?.name;
   const level = getUserInfo()?.level;
+  const image = getUserInfo()?.image;
 
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative">
@@ -27,16 +78,17 @@ const DropdownUser = () => {
           <span className="block text-xs">{level}</span>
         </span>
 
-        <span className="h-12 w-12 rounded-full">
+        <span className="relative h-13 w-13 rounded-full bg-white shadow-lg overflow-hidden">
           <Image
             width={112}
             height={112}
-            src={"/images/user/user-01.png"}
+            src={user?.image || "/images/user/user-01.png"}
             style={{
               width: "auto",
               height: "auto",
             }}
             alt="User"
+            className="rounded-full object-cover"
           />
         </span>
 
@@ -136,8 +188,8 @@ const DropdownUser = () => {
             </li>
           </ul>
           <button
-          onClick={logout} 
-          className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
+            onClick={logout}
+            className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
             <svg
               className="fill-current"
               width="22"

@@ -31,7 +31,7 @@ export async function POST(req: Request) {
         }
 
         const token = sign(
-            { id: user.id, email: user.email, name: user.name, level: user.level },
+            { id: user.id, email: user.email, name: user.name, level: user.level, nohp: user.nohp, alamt: user.alamat, image: user.image, },
             process.env.JWT_SECRET ?? "ini-rahasia",
             { expiresIn: "1h" }
         );
@@ -44,11 +44,6 @@ export async function POST(req: Request) {
         } else if (user.level === "customer") {
             redirectUrl = "/customers/tampilan";
         }
-        // const token = jwt.sign(
-        //     {id: user.id, email: user.email},
-        //     process.env.JWT_SECRET!,
-        //     {expriresIn: '1h'}
-        // );
 
         // buat headers set-Cookies
         const headers = new Headers();
@@ -56,12 +51,12 @@ export async function POST(req: Request) {
             "set-Cookie",
             `token=${token}; Path=/; SameSite=Lax; Max-Age3600`
         )
-        
+
 
         return new Response(JSON.stringify({
             statusCode: 200,
             msg: "Login succesful",
-            data: { id: user.id, email: user.email, name: user.name, level: user.level, token, redirectUrl }
+            data: { id: user.id, email: user.email, name: user.name, level: user.level, nohp: user.nohp, alamt: user.alamat, image: user.image, token, redirectUrl }
         }), { status: 200, headers });
 
     } catch (error) {

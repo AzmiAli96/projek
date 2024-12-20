@@ -33,7 +33,7 @@ const User: React.FC = () => {
     useEffect(() => {
         const itemData = async () => {
             try {
-                const response = await axios.get("/api/user");
+                const response = await axios.get("/api/user/");
                 setItems(response.data.data);
             } catch (error) {
                 console.error("Gagal menambil data user");

@@ -21,6 +21,8 @@ model User{
   level String
   nohp String @db.VarChar(12)
   alamat String
+  image String?
+  cart Cart[]
   pembelian Pembelian[]
 } 
 
@@ -40,8 +42,9 @@ model Cart{
   id Int @id @default(autoincrement())
   id_barang Int
   barang Barang @relation(fields: [id_barang], references: [id])
+  id_user Int
+  user User @relation(fields: [id_user], references: [id])
   jumlah_cart Int
-  status String
 }
 
 model Pembelian{
@@ -50,7 +53,7 @@ model Pembelian{
   user User @relation(fields: [id_user], references: [id])
   id_barang Int 
   barang Barang @relation(fields: [id_barang], references: [id])
-  tanggal DateTime
+  tanggal DateTime @default(now())
   jumlah_beli Int
   status String
   keputusan String

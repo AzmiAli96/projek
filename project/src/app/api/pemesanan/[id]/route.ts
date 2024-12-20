@@ -36,49 +36,38 @@ type pembelian = {
     id_user: number
     tanggal: string
     jumlah_beli: number
-    status: string
+    status: string,
+    keputusan: string
 }
 
 // ------------------------ UPDATE DATA BERDASARKAN ID ----------------------------------
 
-export async function PUT(request: Request, { params }: { params: { id: number } }) {
+export async function PATCH(request: Request, { params }: { params: { id: string } }) {
     try {
         const { id } = params;
-
-        const findPembelian = await prisma.pembelian.findUnique({
-            where: { id: Number(id) }
-        })
-        if (!findPembelian) return new Response(JSON.stringify({
-            statusCode: 404,
-            msg: "Item not found"
-        }), { status: 404 });
-
-        const body: pembelian = await request.json();
+        const body = await request.json();
 
         const updatedpembelian = await prisma.pembelian.update({
+            where: { id: Number(id) },
             data: {
-                id_user: body.id_user,
-                id_barang: body.id_barang,
-                tanggal: new Date(body.tanggal),
-                jumlah_beli: body.jumlah_beli,
-                status: body.status
-            }, where: { id: Number(id) }
-        })
+                ...body // Menggunakan properti yang dikirim saja
+            }
+        });
 
         return new Response(JSON.stringify({
             statusCode: 200,
             msg: "Successfully updated data",
             data: updatedpembelian
         }), { status: 200 });
-
     } catch (error) {
         return new Response(JSON.stringify({
             statusCode: 500,
-            msg: "Internal server error" + error
+            msg: "Internal server error",
+            error: error
         }), { status: 500 });
     }
-
 }
+
 
 // ------------------------ END UPDATE DATA BERDASARKAN ID ----------------------------------
 

@@ -3,9 +3,9 @@ import { jwtVerify } from "jose";
 import cookie from "cookie";
 
 const allowedPathByRole: { [key: string]: string[] } = {
-    admin: ["/admin/dashboard", "/admin/rekap", "/admin/user"],
-    sales: ["/sales/pengeluaran", "/sales/pendapatan"],
-    customer: ["/customers/tampilan", "/customers/pesanan"],
+    admin: ["/admin/dashboard", "/admin/rekap", "/admin/user", "/admin/stock", "/profile"],
+    sales: ["/sales/pengeluaran", "/sales/pendapatan", "/profile"],
+    customer: ["/customers/tampilan", "/customers/pesanan", "/customers/cart", "/customers/checkout", "/profile"],
 };
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET || "ini-rahasia");
