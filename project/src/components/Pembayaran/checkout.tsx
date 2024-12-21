@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { getUserInfo } from "@/utils/auth";
+import jwt from "jsonwebtoken";
 
 type cart = {
     id: number;
@@ -27,6 +28,24 @@ const Checkout: React.FC = () => {
     const [tanggal, setTanggal] = useState<string>(new Date().toISOString().split("T")[0]); // Default ke hari ini
     const router = useRouter();
     const searchParams = useSearchParams();
+    const [userId, setUserId] = useState<number | null>(null);
+
+    useEffect(() => {
+        // Decode token untuk mendapatkan id_user
+        const token = document.cookie
+            .split("; ")
+            .find((row) => row.startsWith("token="))
+            ?.split("=")[1];
+
+        if (token) {
+            try {
+                const decoded = jwt.decode(token) as { id: number };
+                setUserId(decoded.id); // Simpan id_user dari token
+            } catch (error) {
+                console.error("Invalid token:", error);
+            }
+        }
+    }, []);
 
     // Ambil data dari query parameter
     useEffect(() => {
@@ -34,98 +53,89 @@ const Checkout: React.FC = () => {
         if (data) {
             try {
                 const parsedData = JSON.parse(decodeURIComponent(data)) as { id_barang: number; jumlah: number }[];
-
+    
                 // Ambil detail barang dari server
                 const fetchItems = async () => {
                     try {
                         const response = await axios.get("/api/cart");
-                        // console.log(response.data);
-                        
                         const allItems: cart[] = response.data.data;
-
-                        // Filter berdasarkan id_barang yang dipilih
-                        const selectedItems = allItems.filter((item) =>
-                            parsedData.some((checkoutItem) => checkoutItem.id_barang === item.id_barang)
-                        );
-
-                        // Perbarui jumlah yang dipilih
-                        const updatedItems = selectedItems.map((item) => {
-                            const matchingItem = parsedData.find(
-                                (checkoutItem) => checkoutItem.id_barang === item.id_barang
+    
+                        if (userId) {
+                            // Filter hanya barang milik user yang sedang login
+                            const userItems = allItems.filter((item) => item.id_user === userId);
+    
+                            // Filter berdasarkan id_barang yang dipilih
+                            const selectedItems = userItems.filter((item) =>
+                                parsedData.some((checkoutItem) => checkoutItem.id_barang === item.id_barang)
                             );
-                            return {
-                                ...item,
-                                jumlah_cart: matchingItem ? matchingItem.jumlah : item.jumlah_cart,
-                            };
-                        });
-
-                        setCheckoutItems(updatedItems);
-
-                        // Hitung total harga
-                        const total = updatedItems.reduce(
-                            (sum, item) => sum + item.barang.harga * item.jumlah_cart,
-                            0
-                        );
-                        setTotalPrice(total);
+    
+                            // Perbarui jumlah barang yang dipilih
+                            const updatedItems = selectedItems.map((item) => {
+                                const matchingItem = parsedData.find(
+                                    (checkoutItem) => checkoutItem.id_barang === item.id_barang
+                                );
+                                return {
+                                    ...item,
+                                    jumlah_cart: matchingItem ? matchingItem.jumlah : item.jumlah_cart,
+                                };
+                            });
+    
+                            setCheckoutItems(updatedItems);
+    
+                            // Hitung total harga
+                            const total = updatedItems.reduce(
+                                (sum, item) => sum + item.barang.harga * item.jumlah_cart,
+                                0
+                            );
+                            setTotalPrice(total);
+                        }
                     } catch (error) {
                         console.error("Error fetching items:", error);
                     }
                 };
-
+    
                 fetchItems();
             } catch (error) {
                 console.error("Invalid query data:", error);
             }
         }
-    }, [searchParams]);
+    }, [searchParams, userId]);
+    
 
     const handleSubmit = async () => {
-        // Validasi jika user belum login
-        const id_user = getUserInfo()?.id;
-        if (!id_user) {
+        if (!userId) {
             toast.error("Anda harus login sebelum melakukan pemesanan.");
             return;
         }
     
-        // Validasi jika tidak ada item di checkout
         if (checkoutItems.length === 0) {
             toast.error("Tidak ada barang untuk dipesan!");
             return;
         }
     
         try {
-            // Format tanggal valid
-            const tanggal = new Date().toISOString();
-    
-            // Buat data pesanan
             const orders = checkoutItems.map((item) => ({
-                idCart: item.id,            // ID keranjang
-                id_user,                    // ID user
-                id_barang: item.id_barang,  // ID barang
-                tanggal,                    // Tanggal pemesanan
-                jumlah_beli: item.jumlah_cart, // Jumlah beli
-                status: "belum bayar",      // Status default
-                keputusan: "dalam proses",  // Keputusan default
+                idCart: item.id,
+                id_user: userId, // Pastikan userId sesuai
+                id_barang: item.id_barang,
+                tanggal: new Date().toISOString(),
+                jumlah_beli: item.jumlah_cart,
+                status: "belum bayar",
+                keputusan: "dalam proses",
             }));
     
-            console.log("Data yang dikirim ke server:", orders);
-    
-            // Kirim data ke API
-            const response = await axios.post(
-                "/api/checkout",
-                orders, // Kirim array langsung
-                { headers: { "Content-Type": "application/json" } }
-            );
+            const response = await axios.post("/api/checkout", orders, {
+                headers: { "Content-Type": "application/json" },
+            });
     
             toast.success("Pemesanan Berhasil Dilakukan");
-            console.log("Response dari server:", response.data);
-            // Redirect ke halaman "/customers/pesanan" setelah berhasil
             router.push("/customers/pesanan");
         } catch (error) {
             console.error("Gagal memesan barang:", error);
             toast.error("Gagal melakukan pemesanan. Silahkan coba lagi.");
         }
     };
+    
 
     return (
         <div className="p-6 bg-gray-100 min-h-screen">

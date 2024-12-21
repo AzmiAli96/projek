@@ -69,8 +69,9 @@ export async function POST(req: NextRequest) {
         }
 
         // Simpan transaksi menggunakan Prisma Transaction
-        const pembelian = await prisma.$transaction(
-            carts.map((cart) =>
+        const [pembelian] = await prisma.$transaction([
+            // Simpan data pembelian
+            ...carts.map((cart) =>
                 prisma.pembelian.create({
                     data: {
                         id_barang: cart.id_barang,
@@ -81,8 +82,12 @@ export async function POST(req: NextRequest) {
                         tanggal: new Date().toISOString(),
                     },
                 })
-            )
-        );
+            ),
+            // Hapus data dari cart
+            prisma.cart.deleteMany({
+                where: { id: { in:ids } },
+            }),
+        ]);
 
         return NextResponse.json({
             msg: "Berhasil melakukan pemesanan",

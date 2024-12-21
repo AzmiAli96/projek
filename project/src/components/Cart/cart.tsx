@@ -50,19 +50,23 @@ const Cart: React.FC = () => {
             try {
                 const response = await axios.get("/api/cart");
                 const allCartItems = response.data.data as cart[];
-                setCartItems(allCartItems);
-                setIsChecked(new Array(allCartItems.length).fill(false));
+        
+                if (userId) {
+                    const userCart = allCartItems.filter((cartItem) => cartItem.id_user === userId);
+                    setCartItems(userCart);
+                    setIsChecked(new Array(userCart.length).fill(false));
+                } else {
+                    setCartItems([]);
+                }
+        
                 const initialQuantities: { [key: number]: number } = {};
                 allCartItems.forEach((item) => {
                     initialQuantities[item.id] = item.jumlah_cart;
                 });
-                if (userId) {
-                    const userCart = allCartItems.filter((cartItems) => cartItems.id_user === userId);
-                    setCartItems(userCart);
-                }
                 setQuantityMap(initialQuantities);
             } catch (error) {
                 console.error("Error fetching cart items:", error);
+                // Mungkin tambahkan pesan error ke UI
             }
         };
 
